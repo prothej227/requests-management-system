@@ -1,0 +1,51 @@
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Date,
+    DateTime,
+    ForeignKey,
+    Text,
+    func,
+)
+from sqlalchemy.orm import relationship
+
+from app.core.database import Base
+
+
+class Area(Base):
+    __tablename__ = "areas"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False, unique=True)
+    requests = relationship("Request", back_populates="area")
+
+
+class Customer(Base):
+    __tablename__ = "customers"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False, unique=True)
+    requests = relationship("Request", back_populates="customer")
+
+
+class Request(Base):
+    __tablename__ = "requests"
+
+    id = Column(Integer, primary_key=True, index=True)
+    ref_no = Column(String(255), unique=True, index=True, nullable=False)
+    date_received = Column(Date, nullable=True)
+    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=True)
+    area_id = Column(Integer, ForeignKey("areas.id"), nullable=True)
+    short_description = Column(String(255), nullable=True)
+    long_description = Column(Text, nullable=True)
+    sales_person_id = Column(Integer, nullable=True)
+    status = Column(String(255), nullable=True)
+    category = Column(String(255), nullable=True)
+    lpo_no = Column(String(255), nullable=True)
+    created_by = Column(String(255), nullable=True)
+    created_on = Column(DateTime(timezone=True), server_default=func.now())
+    modified_by = Column(String(255), nullable=True)
+    modified_on = Column(DateTime(timezone=True), onupdate=func.now())
+    customer = relationship("Customer", back_populates="requests")
+    area = relationship("Area", back_populates="requests")
