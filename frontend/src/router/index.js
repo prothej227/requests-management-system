@@ -14,6 +14,16 @@ const routes = [
     component: RequestsView
   },
   {
+    path: '/stickers',
+    name: 'stickers',
+    component: () => import(/* webpackChunkName: "stickers" */ '../views/StickersView.vue')
+  },
+  {
+    path: '/master-data/:record_name',
+    name: 'master-data',
+    component: () => import(/* webpackChunkName: "master-data" */ '../views/MasterRecordsView.vue')
+  },
+  {
     path: '/about',
     name: 'about',
     // route level code-splitting

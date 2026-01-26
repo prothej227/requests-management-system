@@ -2,30 +2,33 @@
     <div class="sidebar border border-right col-md-3 col-lg-2 p-0 bg-body-tertiary">
         <div class="offcanvas-md offcanvas-end bg-body-tertiary" tabindex="-1" id="sidebarMenu"
             aria-labelledby="sidebarMenuLabel">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="sidebarMenuLabel">Company name</h5> <button type="button"
-                    class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu"
+            <!-- Offcanvas header only for mobile -->
+            <div class="offcanvas-header d-md-none">
+                <h5 class="offcanvas-title" id="sidebarMenuLabel">Ritver</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu"
                     aria-label="Close"></button>
             </div>
             <div class="offcanvas-body d-md-flex flex-column p-0 pt-lg-3 overflow-y-auto">
-                <ul ul class="nav flex-column">
+                <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center gap-2 active" aria-current="page" href="#">
-                            <i class="bi bi-house-fill" aria-hidden="true"></i>
+                        <RouterLink to="/" class="nav-link d-flex align-items-center gap-2" active-class="active"
+                            href="#">
+                            <i class="bi bi-house" aria-hidden="true"></i>
                             Dashboard
-                        </a>
+                        </RouterLink>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center gap-2" href="#"> <i class="bi bi-file-earmark"
-                                aria-hidden="true"></i>
+                        <RouterLink to="/requests" class="nav-link d-flex align-items-center gap-2"
+                            active-class="active" href="#"> <i class="bi bi-file-earmark" aria-hidden="true"></i>
                             Requests
-                        </a>
+                        </RouterLink>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center gap-2" href="#">
+                        <RouterLink to="/stickers" class="nav-link d-flex align-items-center gap-2"
+                            active-class="active" href="#">
                             <i class="bi bi-stickies" aria-hidden="true"></i>
                             Stickers
-                        </a>
+                        </RouterLink>
                     </li>
                 </ul>
                 <h6
@@ -37,15 +40,26 @@
                     </a>
                 </h6>
                 <ul class="nav flex-column mb-auto">
-                    <li class="nav-item"> <a class="nav-link d-flex align-items-center gap-2" href="#">
-                            <i class="bi bi-file-earmark-text" aria-hidden="true"></i>
+                    <li class="nav-item">
+                        <RouterLink to="/master-data/customer" class="nav-link d-flex align-items-center gap-2"
+                            active-class="active">
+                            <i class="bi bi-person" aria-hidden="true"></i>
                             Customer
-                        </a>
+                        </RouterLink>
                     </li>
-                    <li class="nav-item"> <a class="nav-link d-flex align-items-center gap-2" href="#">
-                            <i class="bi bi-file-earmark-text" aria-hidden="true"></i>
+                    <li class="nav-item">
+                        <RouterLink to="/master-data/area" class="nav-link d-flex align-items-center gap-2"
+                            active-class="active">
+                            <i class="bi bi-person-workspace" aria-hidden="true"></i>
                             Area
-                        </a>
+                        </RouterLink>
+                    </li>
+                    <li class="nav-item">
+                        <RouterLink to="/master-data/salesperson" class="nav-link d-flex align-items-center gap-2"
+                            active-class="active">
+                            <i class="bi bi-person-badge" aria-hidden="true"></i>
+                            SalesPerson
+                        </RouterLink>
                     </li>
 
                 </ul>
@@ -75,17 +89,22 @@ a {
     color: #293630;
 }
 
+.active {
+    color: #049679 !important;
+    text-shadow: h-shadow v-shadow blur-radius color;
+    font-weight: bold !important;
+}
+
+.bi {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+}
+
+/*
+ * Sidebar
+ */
 .sidebar {
-    position: fixed;
-    top: 3em;
-    /* Height of TopHeader */
-    bottom: 0;
-    left: 0;
-    z-index: 100;
-    padding: 0;
-    /* Remove top padding since top is now set */
-    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-    height: calc(100% - 3em);
-    /* Ensure sidebar doesn't overflow */
+    min-height: 100vh;
 }
 </style>

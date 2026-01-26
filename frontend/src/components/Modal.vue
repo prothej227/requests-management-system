@@ -1,7 +1,7 @@
 <template>
     <div class="modal fade" id="baseModal" tabindex="-1" ref="modalEle">
         <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content rounded-0">
+            <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="baseModalLabel">
                         <i :class="`${biHeaderIcon} me-1`"></i>

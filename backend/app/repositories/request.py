@@ -1,7 +1,7 @@
 from app.repositories.abc import AbstractAsyncRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Type
-from app.models.requests import Request, Customer, Area
+from app.models.requests import Request, Customer, Area, SalesPerson
 
 
 class RequestRepository(AbstractAsyncRepository[Request]):
@@ -32,3 +32,13 @@ class AreaRepository(AbstractAsyncRepository[Area]):
     @property
     def model(self) -> Type[Area]:
         return Area
+
+
+class SalesPersonRepository(AbstractAsyncRepository[SalesPerson]):
+
+    def __init__(self, db: AsyncSession):
+        super().__init__(db)
+
+    @property
+    def model(self) -> Type[SalesPerson]:
+        return SalesPerson

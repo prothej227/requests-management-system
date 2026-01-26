@@ -3,7 +3,12 @@ import app.schemas.request as record_schemas
 from app.schemas.generic import APIResponse
 from app.core.database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.service.request_service import RequestService, CustomerService, AreaService
+from app.service.request_service import (
+    RequestService,
+    CustomerService,
+    AreaService,
+    SalesPersonService,
+)
 
 router = APIRouter(
     prefix="/records",
@@ -125,7 +130,7 @@ async def list_requests(
         records = await request_service.get_all_denorm_with_count(
             start_index=start_index,
             batch_size=batch_size,
-            relationships=["customer", "area"],
+            relationships=["customer", "area", "sales_person"],
         )
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
@@ -136,6 +141,10 @@ async def list_requests(
             data["customer_name"] = getattr(record.customer, "name", "-")
         if hasattr(record, "area"):
             data["area_name"] = getattr(record.area, "name", "-")
+        if hasattr(record, "sales_person"):
+            first_name = getattr(record.sales_person, "first_name", "-")
+            last_name = getattr(record.sales_person, "last_name", "-")
+            data["sales_person"] = f"{first_name} {last_name[0]}"
         record_list.append(data)
     return record_schemas.RequestResponseWithCount(
         total_count=records["total_count"],
@@ -207,6 +216,41 @@ async def update_customer(
     )
 
 
+@router.get("/customers/list", status_code=status.HTTP_200_OK)
+async def list_customers(
+    db: AsyncSession = Depends(get_db), start_index: int = 0, batch_size: int = 30
+) -> record_schemas.RequestResponseWithCount:
+    """
+    List all customers.
+
+    Args:
+        db (AsyncSession): The database session.
+
+    Returns:
+        APIResponse: A list of customer objects.
+    """
+    record_list = []
+    try:
+        customer_service = CustomerService(db)
+        records = await customer_service.get_all_denorm_with_count(
+            start_index=start_index,
+            batch_size=batch_size,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+    for record in records["records"]:
+        data = {c.name: getattr(record, c.name) for c in record.__table__.columns}
+        record_list.append(data)
+    return record_schemas.RequestResponseWithCount(
+        total_count=records["total_count"],
+        records=[
+            record_schemas.CustomerViewSchema.model_validate(record)
+            for record in record_list
+        ],
+    )
+
+
 @router.post("/areas/create", status_code=status.HTTP_200_OK)
 async def create_area(
     form_data: record_schemas.AreaCreateSchema, db: AsyncSession = Depends(get_db)
@@ -262,4 +306,136 @@ async def update_area(
     return APIResponse(
         response={"updated_area_id": updated_record.id},
         message="Area updated successfully",
+    )
+
+
+@router.get("/areas/list", status_code=status.HTTP_200_OK)
+async def list_areas(
+    db: AsyncSession = Depends(get_db), start_index: int = 0, batch_size: int = 30
+) -> record_schemas.RequestResponseWithCount:
+    """
+    List all areas.
+
+    Args:
+        db (AsyncSession): The database session.
+
+    Returns:
+        APIResponse: A list of area objects.
+    """
+    record_list = []
+    try:
+        area_service = AreaService(db)
+        records = await area_service.get_all_denorm_with_count(
+            start_index=start_index,
+            batch_size=batch_size,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+    for record in records["records"]:
+        data = {c.name: getattr(record, c.name) for c in record.__table__.columns}
+        record_list.append(data)
+    return record_schemas.RequestResponseWithCount(
+        total_count=records["total_count"],
+        records=[
+            record_schemas.AreaViewSchema.model_validate(record)
+            for record in record_list
+        ],
+    )
+
+
+@router.post("/sales-persons/create", status_code=status.HTTP_200_OK)
+async def create_sales_person(
+    form_data: record_schemas.SalesPersonCreateSchema,
+    db=Depends(get_db),
+) -> APIResponse:
+    """
+    Create a new sales person record.
+
+    Args:
+        db (AsyncSession): The database session.
+
+    Returns:
+        APIResponse: The created sales person object.
+    """
+    try:
+        sales_person_service = SalesPersonService(db)
+        created_data = await sales_person_service.create(form_data)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    if not created_data:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Sales Person creation failed",
+        )
+    return APIResponse(
+        response={"new_sales_person_id": created_data.id},
+        message="Sales Person created successfully",
+    )
+
+
+@router.patch("/sales-persons/update/{sales_person_id}", status_code=status.HTTP_200_OK)
+async def update_sales_person(
+    sales_person_id: int,
+    update_data: record_schemas.SalesPersonUpdateSchema,
+    db=Depends(get_db),
+) -> APIResponse:
+    """
+    Update an existing sales person record.
+
+    Args:
+        db (AsyncSession): The database session.
+        sales_person_id (int): The ID of the sales person to update.
+        update_data (SalesPersonUpdateSchema): The data to update the sales person with.
+
+    Returns:
+        APIResponse: The updated sales person object.
+    """
+    try:
+        sales_person_service = SalesPersonService(db)
+        updated_record = await sales_person_service.update(sales_person_id, update_data)  # type: ignore
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    if not updated_record:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Sales Person update failed"
+        )
+    return APIResponse(
+        response={"updated_sales_person_id": updated_record.id},
+        message="Sales Person updated successfully",
+    )
+
+
+@router.get("/sales-persons/list", status_code=status.HTTP_200_OK)
+async def list_sales_persons(
+    db: AsyncSession = Depends(get_db), start_index: int = 0, batch_size: int = 30
+) -> record_schemas.RequestResponseWithCount:
+    """
+    List all sales persons.
+
+    Args:
+        db (AsyncSession): The database session.
+
+    Returns:
+        APIResponse: A list of sales person objects.
+    """
+    record_list = []
+    try:
+        sales_person_service = SalesPersonService(db)
+        records = await sales_person_service.get_all_denorm_with_count(
+            start_index=start_index,
+            batch_size=batch_size,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+    for record in records["records"]:
+        data = {c.name: getattr(record, c.name) for c in record.__table__.columns}
+        record_list.append(data)
+    return record_schemas.RequestResponseWithCount(
+        total_count=records["total_count"],
+        records=[
+            record_schemas.SalesPersonViewSchema.model_validate(record)
+            for record in record_list
+        ],
     )

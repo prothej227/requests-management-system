@@ -1,5 +1,10 @@
 <template>
-    <h3 class="mt-4">Requests</h3>
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 border-bottom">
+        <h1 class="h4 d-flex">
+            <i class="bi bi-file-earmark me-3"></i>
+            Requests
+        </h1>
+    </div>
     <ActionButton :visibility="actionButtonEnabledConfig.visibility" :onCreate="showCreateRequestModal"
         @refresh="fetchRequests" />
     <EasyDataTable v-model:server-options="serverOptions" :headers="headers" :items="items" :key="serverOptions.page"
@@ -26,6 +31,7 @@ import ActionButton from '@/components/ActionButton.vue';
 import CreateRequestsForm from '@/components/forms/CreateRequestsForm.vue';
 import axios from 'axios';
 import Modal from '@/components/Modal.vue';
+import { toast } from 'vue3-toastify';
 
 export default {
     name: 'RequestsView',
@@ -88,10 +94,11 @@ export default {
                 const data = response.data;
                 // Expecting data.items and data.total
                 this.items = data.records || [];
-                this.serverItemsLength = data.total || 0;
+                this.serverItemsLength = data.total_count || 0;
             } catch (error) {
                 this.items = [];
                 this.serverItemsLength = 0;
+                toast.error('Error fetching requests data.');
                 // Optionally show error notification
             } finally {
                 this.isDataTableLoading = false;
@@ -105,14 +112,15 @@ export default {
             const currentDate = `${yyyy}-${mm}-${dd}`;
             if (this.$refs.createRequestForm) {
                 this.$refs.createRequestForm.requestForm = {
-                    date_received: currentDate,
+                    date_received: '',
                     customer_id: '',
                     area_id: '',
                     long_description: '',
                     short_description: '',
                     sales_person_id: '',
-                    status: '',
-                    category: '',
+                    status: 'Not Started',
+                    feedback: 'N/A',
+                    quantity: '',
                     lpo_no: '',
                 };
             }
