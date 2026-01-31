@@ -29,6 +29,10 @@ class AbstractAsyncRepository(ABC, Generic[RecordType]):
             await self.db.rollback()
             raise e
 
+    async def add_only(self, obj: RecordType) -> RecordType:
+        self.db.add(obj)
+        return obj
+
     async def get_by_id(
         self, id: int, relationships: Optional[List[str]] = None
     ) -> Optional[RecordType]:
@@ -119,7 +123,7 @@ class AbstractAsyncRepository(ABC, Generic[RecordType]):
             return [dict(zip(field_names, row)) for row in rows]
         else:
 
-            return list(result.scalars().all())
+            return list(result.unique().scalars().all())
 
     async def update(self, id: int, update_data: dict) -> RecordType:
         if id is None or update_data is None:

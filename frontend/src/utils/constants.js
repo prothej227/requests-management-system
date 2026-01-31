@@ -31,6 +31,24 @@ const TableHeaders = {
       { text: "Last Name", value: "last_name" },
     ],
   },
+  STICKERS: {
+    canvas: [
+      { text: "Actions", value: "actions", width: 50 },
+      { text: "ID", value: "id", width: 10 },
+      { text: "Status", value: "status", width: 50 },
+      { text: "Stickers Count", value: "stickers_count" },
+      { text: "Created On", value: "created_on" },
+      { text: "GET", value: "get", width: 100 },
+    ],
+    selectedRequestsTable: [
+      { text: "", value: "actions", sortable: false, width: 1 },
+      { text: "ID", value: "id" },
+      { text: "Lab Reference No.", value: "ref_no" },
+      { text: "Customer Name", value: "customer_name" },
+      { text: "Short Description", value: "short_description" },
+      { text: "Status", value: "status" },
+    ],
+  },
 };
 
 const ReferenceValues = {
@@ -59,6 +77,12 @@ const API = {
       list: `${BASE_API_URL}/records/sales-persons/list`,
       create: `${BASE_API_URL}/records/sales-persons/create`,
     },
+  },
+  STICKERS: {
+    list: `${BASE_API_URL}/sticker-service/canvas/list`,
+    create: `${BASE_API_URL}/sticker-service/canvas/create`,
+    sticker_download_base_url: `${BASE_API_URL}/sticker-service/document`,
+    generate_sticker_canvas: `${BASE_API_URL}/sticker-service/generate-sticker-pdf`,
   },
 };
 export { TableHeaders, API, ReferenceValues };

@@ -1,6 +1,6 @@
 from typing import Type, Generic, List, Optional, Any, Union, Dict, TypedDict
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.repository import AbstractAsyncRepository
+from app.repositories.abc import AbstractAsyncRepository
 from app.models.generic import RecordType, CreateSchemaType, UpdateSchemaType
 
 
@@ -34,6 +34,11 @@ class CrudService(Generic[RecordType, CreateSchemaType, UpdateSchemaType]):
     async def create(self, create_data: CreateSchemaType) -> RecordType:
         obj = self.model(**create_data.model_dump())
         return await self.repo.create(obj)
+
+    async def create_no_commit(self, create_data: CreateSchemaType) -> RecordType:
+        obj = self.model(**create_data.model_dump())
+        await self.repo.add_only(obj)
+        return obj
 
     async def update(self, id: int, update_data: UpdateSchemaType) -> RecordType:
         return await self.repo.update(id, update_data.model_dump(exclude_unset=True))

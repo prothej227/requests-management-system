@@ -7,6 +7,7 @@ from sqlalchemy import (
     ForeignKey,
     Text,
     func,
+    LargeBinary,
 )
 from sqlalchemy.orm import relationship
 from app.core.database import Base
@@ -17,6 +18,7 @@ class Area(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False, unique=True)
+    logo = Column(LargeBinary, nullable=True)
     requests = relationship("Request", back_populates="area")
 
 

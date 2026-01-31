@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     cors_allow_headers: list
     pdf_template_path: str = "./templates/stickers/base_template.pdf"
     sqlalchemy_default_batch_size: int = 500
-
+    sticker_storage_dir: str = "storage/stickers"
     timezone: str
     model_config = SettingsConfigDict(env_file=BASE_DIR / ".env")
 
@@ -40,6 +40,17 @@ class Settings(BaseSettings):
         if isinstance(v, str):
             return json.loads(v)
         return v
+
+    @property
+    def sticker_storage_dir_resolved(self):
+        path = (BASE_DIR / self.sticker_storage_dir).resolve()
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
+    @property
+    def base_dir(self):
+        """Base DIR where .env and storage repo is located"""
+        return BASE_DIR
 
 
 @lru_cache()

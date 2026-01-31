@@ -110,6 +110,9 @@ venv.bak/
 # temp
 /_temp/
 
+# Storage
+backend/storage/
+
 # db
 backend/migrations/
 backend/alembic.ini

@@ -112,7 +112,7 @@ export default {
             const currentDate = `${yyyy}-${mm}-${dd}`;
             if (this.$refs.createRequestForm) {
                 this.$refs.createRequestForm.requestForm = {
-                    date_received: '',
+                    date_received: currentDate,
                     customer_id: '',
                     area_id: '',
                     long_description: '',

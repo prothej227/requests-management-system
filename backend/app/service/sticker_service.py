@@ -3,17 +3,28 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.colors import black, lightgrey
 from io import BytesIO
 from typing import List, Dict
-import base64
-
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from app.core.config import get_settings
+import base64
+import uuid
+from dataclasses import dataclass
+from pathlib import Path
 
 settings = get_settings()
 
 
-class CreateStickerService:
+@dataclass
+class DocumentInformation:
+    document_id: str
+    path: str
+
+
+class StickerGeneratorService:
     def __init__(self):
         # template_path kept for backward compatibility, not used
         self._template_path: str = "settings.pdf_template_path"
+        self.output_dir = settings.sticker_storage_dir_resolved
 
     @property
     def template_path(self) -> str:
@@ -115,3 +126,34 @@ class CreateStickerService:
         c.save()
 
         return buffer.getvalue()
+
+
+class StickerStorageService:
+
+    def __init__(self):
+        self.storage_path = settings.sticker_storage_dir_resolved
+
+    def get_document_by_id(self, relative_path: str) -> bytes:
+        document_path = self.storage_path / Path(relative_path)
+        print(str(document_path))
+        if not document_path.exists():
+            raise FileNotFoundError(
+                f"Document with path={str(document_path)} does not exists."
+            )
+        return Path(document_path).read_bytes()
+
+    async def save_document_bytes(self, pdf_bytes: bytes) -> DocumentInformation:
+        now = datetime.now(ZoneInfo(settings.timezone))
+
+        output_dir = self.storage_path / str(now.year) / f"{now.month:02d}"
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        document_id = str(uuid.uuid4())
+        file_path = output_dir / f"{str(document_id)}.pdf"
+
+        # Save bytes to storage
+        file_path.write_bytes(pdf_bytes)
+
+        return DocumentInformation(
+            document_id=document_id, path=str(file_path.relative_to(self.storage_path))
+        )

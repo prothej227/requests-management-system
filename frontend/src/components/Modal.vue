@@ -1,6 +1,6 @@
 <template>
     <div class="modal fade" id="baseModal" tabindex="-1" ref="modalEle">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div :class="`modal-dialog modal-${size} modal-dialog-centered`">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="baseModalLabel">
@@ -36,7 +36,11 @@ defineProps({
     biHeaderIcon: {
         type: String,
         default: "bi bi-info-circle",
-    }
+    },
+    size: {
+        type: String,
+        default: "lg", // sm, lg, xl, xxl
+    },
 });
 
 // refs and variables
