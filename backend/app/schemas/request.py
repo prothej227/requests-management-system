@@ -77,6 +77,7 @@ class CustomerViewSchema(BaseModel):
 # -------------------------
 class AreaBaseSchema(BaseModel):
     name: str = Field(..., max_length=255)
+    logo: Optional[str | bytes]
 
 
 class AreaCreateSchema(AreaBaseSchema):
@@ -85,11 +86,13 @@ class AreaCreateSchema(AreaBaseSchema):
 
 class AreaUpdateSchema(BaseModel):
     name: Optional[str] = Field(None, max_length=255)
+    logo: Optional[str | bytes]
 
 
 class AreaViewSchema(BaseModel):
     id: int
     name: str
+    logo: Optional[str | bytes]
 
     class Config:
         from_attributes = True

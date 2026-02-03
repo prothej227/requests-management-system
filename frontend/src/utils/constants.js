@@ -22,7 +22,8 @@ const TableHeaders = {
       { text: "Customer Name", value: "name" },
     ],
     area: [
-      { text: "ID", value: "id" },
+      { text: "ID", value: "id", width: 1 },
+      { text: "Logo", value: "logo", width: 100 },
       { text: "Area Name", value: "name" },
     ],
     salesperson: [

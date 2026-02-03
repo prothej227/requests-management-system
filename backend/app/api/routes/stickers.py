@@ -176,6 +176,7 @@ async def generate_sticker_pdf(
     for sticker in sticker_canvas.stickers:
         req = sticker.requests
         customer_name = req.customer.name if req.customer else ""
+        logo = req.area.logo if req.area else bytes()
         sticker_inputs.append(
             {
                 "customer": customer_name,
@@ -183,7 +184,7 @@ async def generate_sticker_pdf(
                 "description": req.long_description,
                 "labRefNo": req.ref_no,
                 "quantity": str(req.quantity),
-                "note": "test note",
+                "logo": logo,
             }
         )
 

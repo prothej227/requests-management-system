@@ -266,6 +266,8 @@ async def create_area(
     """
     try:
         area_service = AreaService(db)
+        if form_data.logo:
+            form_data.logo = area_service.decode_base64_image(form_data.logo)
         created_data = await area_service.create(form_data)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
@@ -333,7 +335,15 @@ async def list_areas(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
     for record in records["records"]:
-        data = {c.name: getattr(record, c.name) for c in record.__table__.columns}
+        data = {}
+        for column in record.__table__.columns:
+            value = getattr(record, column.name)
+
+            if isinstance(value, (bytes, bytearray)):
+                value = area_service.bytes_to_base64(value)
+            elif value == b"":  # optional safety
+                value = None
+            data[column.name] = value
         record_list.append(data)
     return record_schemas.RequestResponseWithCount(
         total_count=records["total_count"],

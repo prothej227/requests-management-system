@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 from typing import Type, Optional
 from app.models.stickers import Sticker, StickerCanvas
-from app.models.requests import Request, Customer
+from app.models.requests import Request
 
 
 class StickerRepository(AbstractAsyncRepository[Sticker]):
@@ -31,13 +31,13 @@ class StickerCanvasRepository(AbstractAsyncRepository[StickerCanvas]):
     ) -> Optional[StickerCanvas]:
         stmt = (
             select(StickerCanvas)
-            .join(StickerCanvas.stickers)
-            .join(Sticker.requests)
-            .join(Request.customer)
             .options(
                 joinedload(StickerCanvas.stickers)
                 .joinedload(Sticker.requests)
-                .joinedload(Request.customer)
+                .joinedload(Request.customer),  # load customer
+                joinedload(StickerCanvas.stickers)
+                .joinedload(Sticker.requests)
+                .joinedload(Request.area),  # load area
             )
             .where(StickerCanvas.id == sticker_canvas_id)
         )

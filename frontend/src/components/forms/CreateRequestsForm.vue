@@ -11,8 +11,7 @@
             <div class="col-md-8 col-12">
                 <select v-model="requestForm.customer_id" class="form-control" id="customerId">
                     <option value="" disabled selected>Select Customer</option>
-                    <option v-if="dropDownValues.customer" v-for="value in dropDownValues.customer" :key="value.id"
-                        :value="value.id">{{ value.name }}
+                    <option v-for="value in dropDownValues.customer" :key="value.id" :value="value.id">{{ value.name }}
                     </option>
                 </select>
             </div>
@@ -22,8 +21,8 @@
             <div class="col-md-8 col-12">
                 <select v-model="requestForm.area_id" class="form-control" id="customerId">
                     <option value="" disabled selected>Select Area</option>
-                    <option v-if="dropDownValues.area" v-for="value in dropDownValues.area" :key="value.id"
-                        :value="value.id">{{ value.name }}</option>
+                    <option v-for="value in dropDownValues.area" :key="value.id" :value="value.id">{{ value.name }}
+                    </option>
                 </select>
             </div>
         </div>
@@ -56,8 +55,8 @@
                 <select class="form-control" id="salesPersonId" v-model.number="requestForm.sales_person_id"
                     placeholder="Sales Person ID">
                     <option value="" disabled selected>Select Sales Person</option>
-                    <option v-if="dropDownValues.area" v-for="value in dropDownValues.salesperson" :key="value.id"
-                        :value="value.id">{{ value.name }}</option>
+                    <option v-for="value in dropDownValues.salesperson" :key="value.id" :value="value.id">{{ value.name
+                    }}</option>
                 </select>
             </div>
         </div>
@@ -112,7 +111,8 @@ export default {
             },
             dropDownValues: {
                 customer: [],
-                area: []
+                area: [],
+                salesperson: []
             },
             referenceValues: {
                 status: ReferenceValues.REQUESTS.STATUS,

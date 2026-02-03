@@ -11,6 +11,18 @@
         <EasyDataTable v-model:server-options="serverOptions" :headers="headers" :items="items"
             :key="serverOptions.page" :server-items-length="serverItemsLength" :loading="isDataTableLoading"
             :theme-color="'#007bff'" buttons-pagination border-cell alternating>
+            <!-- // Custom Templates for Area -->
+            <template v-if="recordName === 'area'" #header-logo="header">
+                <div class="d-flex justify-content-center align-items-center w-100 h-100">
+                    <span>{{ header.text }}</span>
+                </div>
+            </template>
+            <template v-if="recordName === 'area'" #item-logo="{ logo }">
+                <div class="py-1 logo-container">
+                    <img v-if="logo" :src="logo" alt="Area Logo" class="img-thumbnail border rounded-0 logo-image" />
+                    <i v-else class="d-flex justify-content-center align-items-center text-muted bi bi-image fs-2"></i>
+                </div>
+            </template>
         </EasyDataTable>
         <Modal ref="createMasterRecordModal" :title="`Create ${toProperCase(recordName)}`"
             biHeaderIcon="bi bi-plus-circle">
@@ -151,7 +163,8 @@ export default {
                 this.$refs.createMasterRecordModal.show();
             } else if (this.recordName === 'area') {
                 this.$.refs.createAreaForm.areaForm = {
-                    'name': ''
+                    'name': '',
+                    'logo': ''
                 }
             } else if (this.recordName === 'salesperson') {
                 this.$.refs.createSalesPersonForm.salesPersonForm = {
@@ -191,3 +204,27 @@ export default {
 
 }
 </script>
+<style scoped>
+.logo-container {
+    display: flex;
+    justify-content: center;
+    /* horizontal center */
+    align-items: center;
+    /* vertical center */
+    height: 60px;
+    /* fixed height for all table rows */
+    width: 100%;
+    /* fill the table cell */
+    overflow: hidden;
+    /* crop overflow if needed */
+}
+
+.logo-image {
+    max-height: 100%;
+    /* fit inside container height */
+    max-width: 100%;
+    /* don’t exceed cell width */
+    object-fit: contain;
+    /* maintain aspect ratio */
+}
+</style>

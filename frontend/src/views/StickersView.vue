@@ -120,7 +120,7 @@ export default {
         async fetchRequests() {
             this.isDataTableLoading = true;
             try {
-                await new Promise(resolve => setTimeout(resolve, 2000));
+
                 // Calculate start_index and batch_size
                 const batch_size = this.serverOptions.rowsPerPage || 15;
                 const start_index = ((this.serverOptions.page || 1) - 1) * batch_size;
