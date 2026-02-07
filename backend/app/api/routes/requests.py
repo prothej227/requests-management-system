@@ -193,9 +193,12 @@ async def list_requests(
         if hasattr(record, "area"):
             data["area_name"] = getattr(record.area, "name", "-")
         if hasattr(record, "sales_person"):
-            first_name = getattr(record.sales_person, "first_name", "-")
-            last_name = getattr(record.sales_person, "last_name", "-")
-            data["sales_person"] = f"{first_name} {last_name[0]}"
+            if not record.sales_person:
+                data["sales_person"] = "-"
+            else:
+                first_name = getattr(record.sales_person, "first_name", "-")
+                last_name = getattr(record.sales_person, "last_name", "-")
+                data["sales_person"] = f"{first_name} {last_name[0]}"
         record_list.append(data)
     return record_schemas.RequestResponseWithCount(
         total_count=records["total_count"],
@@ -302,6 +305,26 @@ async def list_customers(
     )
 
 
+@router.delete("/customers/delete/{customer_id}", status_code=status.HTTP_200_OK)
+async def delete_customer(
+    customer_id: int, db: AsyncSession = Depends(get_db)
+) -> APIResponse:
+    service = CustomerService(db)
+    try:
+        op = await service.delete_by_id(customer_id)
+        if not op:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Record with {customer_id} cannot be found.",
+            )
+        return APIResponse(response={}, message="Delete OK.")
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(e)
+        )
+
+
 @router.post("/areas/create", status_code=status.HTTP_200_OK)
 async def create_area(
     form_data: record_schemas.AreaCreateSchema, db: AsyncSession = Depends(get_db)
@@ -405,6 +428,24 @@ async def list_areas(
     )
 
 
+@router.delete("/areas/delete/{area_id}", status_code=status.HTTP_200_OK)
+async def delete_area(area_id: int, db: AsyncSession = Depends(get_db)) -> APIResponse:
+    service = AreaService(db)
+    try:
+        op = await service.delete_by_id(area_id)
+        if not op:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Record with {area_id} cannot be found.",
+            )
+        return APIResponse(response={}, message="Delete OK.")
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(e)
+        )
+
+
 @router.post("/sales-persons/create", status_code=status.HTTP_200_OK)
 async def create_sales_person(
     form_data: record_schemas.SalesPersonCreateSchema,
@@ -500,3 +541,25 @@ async def list_sales_persons(
             for record in record_list
         ],
     )
+
+
+@router.delete(
+    "/sales-persons/delete/{sales_person_id}", status_code=status.HTTP_200_OK
+)
+async def delete_sales_person(
+    sales_person_id: int, db: AsyncSession = Depends(get_db)
+) -> APIResponse:
+    service = SalesPersonService(db)
+    try:
+        op = await service.delete_by_id(sales_person_id)
+        if not op:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Record with {sales_person_id} cannot be found.",
+            )
+        return APIResponse(response={}, message="Delete OK.")
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(e)
+        )

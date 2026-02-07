@@ -6,20 +6,23 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from app.models.requests import Request
 from zoneinfo import ZoneInfo
+from app.core.config import get_settings
 
-LAB_REF_PREFIX = "LAB"
-ph_timezone = ZoneInfo("Asia/Manila")
+settings = get_settings()
+env_timezone = ZoneInfo(settings.timezone)
 
 
 def generate_lab_ref_no(session: Session) -> str:
     """
-    Generate LAB-YYYY-XXXXXX (zero-padded sequence per year).
-    Example: LAB-2026-000001
+    Generate MM-YYYY-XXXXXX (zero-padded sequence per year).
+    Example: 01-2026-000001
     """
-    year = datetime.now(ph_timezone).year
+    now = datetime.now(env_timezone)
+    month = now.month
+    year = now.year
 
     stmt = select(func.max(Request.ref_no)).where(
-        Request.ref_no.like(f"{LAB_REF_PREFIX}-{year}-%")
+        Request.ref_no.like(f"{month:02d}-{year}-%")
     )
 
     last_ref_no = session.execute(stmt).scalar()
@@ -30,7 +33,7 @@ def generate_lab_ref_no(session: Session) -> str:
     else:
         next_seq = 1
 
-    return f"{LAB_REF_PREFIX}-{year}-{next_seq:06d}"
+    return f"{month:02d}-{year}-{next_seq:04d}"
 
 
 @event.listens_for(Request, "before_insert")

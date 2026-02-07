@@ -49,7 +49,7 @@ class Request(Base):
     sales_person_id = Column(Integer, ForeignKey("sales_persons.id"), nullable=True)
     short_description = Column(String(255), nullable=True)
     long_description = Column(Text, nullable=True)
-    quantity = Column(Integer, nullable=True)
+    quantity = Column(String(255), nullable=True)
     status = Column(String(50), nullable=True)
     feedback = Column(String(50), nullable=True)
     lpo_no = Column(String(255), nullable=True)

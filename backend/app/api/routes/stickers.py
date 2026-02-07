@@ -1,7 +1,4 @@
-import uuid
-from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Response
-from app.repositories.user import UserRepository
 from app.schemas.users import UserPublic
 from app.schemas import sticker as sticker_schemas
 from app.schemas.generic import APIResponse
@@ -141,6 +138,26 @@ async def get_sticker_canvas(
     return sticker_schemas.StickerCanvasView.model_validate(data)
 
 
+@router.delete("/canvas/delete/{sticker_canvas_id}", status_code=status.HTTP_200_OK)
+async def delete_sticker_canvas(
+    sticker_canvas_id: int, db: AsyncSession = Depends(get_db)
+) -> APIResponse:
+    service = StickerCanvasCrudService(db)
+    try:
+        op = await service.delete_by_id(sticker_canvas_id)
+        if not op:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Record with {sticker_canvas_id} cannot be found.",
+            )
+        return APIResponse(response={}, message="Delete OK.")
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(e)
+        )
+
+
 @router.post(
     "/generate-sticker-pdf", status_code=status.HTTP_200_OK, response_model=None
 )
@@ -203,13 +220,6 @@ async def generate_sticker_pdf(
 
     document_info = await storage_service.save_document_bytes(pdf_bytes=pdf_bytes)
 
-    # Update sticker canvas details
-    # update_dto = sticker_schemas.StickerCanvasUpdate.model_validate(
-    #     {
-    #         c.name: getattr(sticker_canvas, c.name)
-    #         for c in sticker_canvas.__table__.columns
-    #     }
-    # )
     update_dto = sticker_schemas.StickerCanvasUpdate(
         document_id=document_info.document_id,
         relative_file_path=document_info.path,

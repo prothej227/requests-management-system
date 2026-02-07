@@ -3,7 +3,6 @@ from sqlalchemy import select, func, case
 from app.core.types import *
 from app.models.requests import Request, Area
 from app.models.generic import RequestStatusEnum
-from app.core.database import get_db
 
 
 class DashboardService:
@@ -33,9 +32,15 @@ class DashboardService:
         result = result.one()
         return {
             "total_count": result.total_count,
-            "not_started_count": result.not_started_count,
-            "in_progress_count": result.in_progress_count,
-            "completed_count": result.completed_count,
+            "not_started_count": (
+                result.not_started_count if result.not_started_count else 0
+            ),
+            "in_progress_count": (
+                result.in_progress_count if result.in_progress_count else 0
+            ),
+            "completed_count": (
+                result.completed_count if result.completed_count else 0
+            ),
         }
 
     async def get_request_count_per_area(self) -> dict[str, int]:

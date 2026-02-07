@@ -29,7 +29,7 @@
         <div class="form-group row mb-2">
             <label class="text-secondary-emphasis fw-bold col-md-4 col-12" for="quantity">Quantity</label>
             <div class="col-md-8 col-12">
-                <input type="number" class="form-control" id="quantity" v-model="requestForm.quantity"
+                <input type="text" class="form-control" id="quantity" v-model="requestForm.quantity"
                     placeholder="Quantity">
             </div>
         </div>
@@ -56,7 +56,7 @@
                     placeholder="Sales Person ID">
                     <option value="" disabled selected>Select Sales Person</option>
                     <option v-for="value in dropDownValues.salesperson" :key="value.id" :value="value.id">{{ value.name
-                        }}</option>
+                    }}</option>
                 </select>
             </div>
         </div>

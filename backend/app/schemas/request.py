@@ -16,7 +16,7 @@ class RequestBaseSchema(BaseModel):
     short_description: Optional[str] = None
     status: Optional[str] = None
     feedback: Optional[str] = None
-    quantity: Optional[int] = None
+    quantity: Optional[str] = None
     lpo_no: Optional[str] = None
 
 
@@ -43,7 +43,7 @@ class RequestUpdateSchema(BaseModel):
 
     status: Optional[str] = None
     feedback: Optional[str] = None
-    quantity: Optional[int] = None
+    quantity: Optional[str] = None
     lpo_no: Optional[str] = None
 
     modified_by: Optional[str] = None
@@ -136,7 +136,7 @@ class RequestViewSchema(BaseModel):
     status: Optional[str]
     feedback: Optional[str]
     lpo_no: Optional[str]
-    quantity: Optional[int]
+    quantity: Optional[str]
     short_description: Optional[str]
     long_description: Optional[str]
 
@@ -164,7 +164,7 @@ class RequestNormalViewSchema(BaseModel):
     status: Optional[str]
     feedback: Optional[str]
     lpo_no: Optional[str]
-    quantity: Optional[int]
+    quantity: Optional[str]
     short_description: Optional[str]
     long_description: Optional[str]
 

@@ -81,16 +81,19 @@ const API = {
       list: `${BASE_API_URL}/records/customers/list`,
       create: `${BASE_API_URL}/records/customers/create`,
       update: `${BASE_API_URL}/records/customers/update/`,
+      delete: `${BASE_API_URL}/records/customers/delete/`,
     },
     area: {
       list: `${BASE_API_URL}/records/areas/list`,
       create: `${BASE_API_URL}/records/areas/create`,
       update: `${BASE_API_URL}/records/areas/update/`,
+      delete: `${BASE_API_URL}/records/areas/delete/`,
     },
     salesperson: {
       list: `${BASE_API_URL}/records/sales-persons/list`,
       create: `${BASE_API_URL}/records/sales-persons/create`,
       update: `${BASE_API_URL}/records/sales-persons/update/`,
+      delete: `${BASE_API_URL}/records/sales-persons/delete/`,
     },
   },
   STICKERS: {

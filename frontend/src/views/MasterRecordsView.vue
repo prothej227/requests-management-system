@@ -12,9 +12,15 @@
             :key="serverOptions.page" :server-items-length="serverItemsLength" :loading="isDataTableLoading"
             :theme-color="'#007bff'" buttons-pagination border-cell alternating>
             <template #item-actions="item">
-                <button class="btn btn-sm btn-outline-primary" @click="showEditMasterRecordModal(item)"><i
-                        class="bi bi-pencil-square"></i>
-                </button>
+                <div class="btn-group gap-1">
+                    <button class="btn btn-sm btn-outline-primary" @click="showEditMasterRecordModal(item)"><i
+                            class="bi bi-pencil-square"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" @click.submit="handleDeleteDialog(item.id)"><i
+                            class="bi bi-trash"></i>
+                    </button>
+                </div>
+
             </template>
             <!-- // Custom Templates for Area -->
             <template v-if="recordName === 'area'" #header-logo="header">
@@ -63,6 +69,8 @@
                 </button>
             </template>
         </Modal>
+        <DeleteDialog ref="deleteDialog" :id-to-delete="deleteSelectedId" :delete-endpoint-url="deleteApiUrl"
+            @delete:success="onDeleteSuccess" @delete:error="onDeleteError" />
     </div>
     <div v-else>
         <h3 class="mt-4">Not Found Error</h3>
@@ -81,6 +89,7 @@ import CreateCustomerForm from '@/components/forms/CreateCustomerForm.vue';
 import CreateAreaForm from '@/components/forms/CreateAreaForm.vue';
 import CreateSalesPersonForm from '@/components/forms/CreeateSalesPersonForm.vue';
 import { toast } from 'vue3-toastify';
+import DeleteDialog from '@/components/DeleteDialog.vue';
 
 export default {
     name: 'MasterRecordsView',
@@ -88,6 +97,7 @@ export default {
         EasyDataTable: window['vue3-easy-data-table'],
         ActionButton,
         Modal,
+        DeleteDialog,
         CreateCustomerForm,
         CreateAreaForm,
         CreateSalesPersonForm
@@ -95,6 +105,7 @@ export default {
     data() {
         return {
             items: [],
+            deleteSelectedId: null,
             serverOptions: {
                 page: 1,
                 rowsPerPage: 30,
@@ -124,6 +135,9 @@ export default {
         },
         tableListUrl() {
             return API.MASTER[this.recordName]['list'];
+        },
+        deleteApiUrl() {
+            return API.MASTER[this.recordName]['delete'];
         }
     },
     watch: {
@@ -254,6 +268,20 @@ export default {
             }
             toast.success("Record edited successfully.")
             this.$refs.editMasterRecordModal.hide();
+        },
+        onDeleteSuccess(id) {
+            toast.success(`Record ${id} deleted.`)
+            this.deleteSelectedId = null,
+                this.fetchRequests(this.tableListUrl)
+        },
+        onDeleteError({ id, error }) {
+            toast.error(`Failed to delete record ${id}.`)
+            toast.warn(error?.response?.data?.detail, { autoClose: false })
+            this.deleteSelectedId = null
+        },
+        async handleDeleteDialog(id) {
+            this.deleteSelectedId = id;
+            this.$.refs.deleteDialog.showDeleteConfirmation()
         },
         toProperCase
     }
