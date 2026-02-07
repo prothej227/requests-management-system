@@ -90,7 +90,7 @@ a {
 }
 
 .active {
-    color: #049679 !important;
+    /* color: #049679 !important; */
     text-shadow: h-shadow v-shadow blur-radius color;
     font-weight: bold !important;
 }

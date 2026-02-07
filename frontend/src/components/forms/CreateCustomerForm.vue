@@ -15,6 +15,12 @@ import axios from 'axios';
 import { API } from '@/utils/constants';
 export default {
     name: 'CreateCustomerForm',
+    props: {
+        isEdit: {
+            type: Boolean,
+            default: false
+        }
+    },
     data() {
         return {
             customerForm: {
@@ -26,7 +32,13 @@ export default {
     methods: {
         async submitForm() {
             try {
-                const response = await axios.post(`${API.MASTER.customer['create']}`, this.customerForm, { withCredentials: true });
+                if (!this.isEdit) {
+                    var response = await axios.post(API.MASTER.customer['create'], this.customerForm, { withCredentials: true });
+
+                } else {
+
+                    var response = await axios.patch(`${API.MASTER.customer['update']}${this.customerForm.id}`, this.customerForm, { withCredentials: true });
+                }
                 if (response.status === 200) {
                     this.$emit('customer-created', response.data);
                 }

@@ -37,13 +37,18 @@ import { toast } from 'vue3-toastify';
 
 export default {
     name: 'CreateAreaForm',
+    props: {
+        isEdit: {
+            type: Boolean,
+            default: false
+        }
+    },
     data() {
         return {
             areaForm: {
                 'name': '',
                 'logo': ''
             },
-            logoPreview: null,
             isLogoProcessing: false
         };
     },
@@ -56,7 +61,12 @@ export default {
     methods: {
         async submitForm() {
             try {
-                const response = await axios.post(`${API.MASTER.area['create']}`, this.areaForm, { withCredentials: true });
+                if (!this.isEdit) {
+                    var response = await axios.post(API.MASTER.area['create'], this.areaForm, { withCredentials: true });
+
+                } else {
+                    var response = await axios.patch(`${API.MASTER.area['update']}${this.areaForm.id}`, this.areaForm, { withCredentials: true });
+                }
                 if (response.status === 200) {
                     this.$emit('area-created', response.data);
                 }

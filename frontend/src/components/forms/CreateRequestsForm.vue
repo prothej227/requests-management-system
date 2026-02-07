@@ -9,7 +9,7 @@
         <div class="form-group row mb-2">
             <label class="text-secondary-emphasis fw-bold col-md-4 col-12" for="customerId">Customer</label>
             <div class="col-md-8 col-12">
-                <select v-model="requestForm.customer_id" class="form-control" id="customerId">
+                <select v-model="requestForm.customer_id" class="form-select" id="customerId">
                     <option value="" disabled selected>Select Customer</option>
                     <option v-for="value in dropDownValues.customer" :key="value.id" :value="value.id">{{ value.name }}
                     </option>
@@ -19,7 +19,7 @@
         <div class="form-group row mb-2">
             <label class="text-secondary-emphasis fw-bold col-md-4 col-12" for="customerId">Area</label>
             <div class="col-md-8 col-12">
-                <select v-model="requestForm.area_id" class="form-control" id="customerId">
+                <select v-model="requestForm.area_id" class="form-select" id="customerId">
                     <option value="" disabled selected>Select Area</option>
                     <option v-for="value in dropDownValues.area" :key="value.id" :value="value.id">{{ value.name }}
                     </option>
@@ -52,11 +52,11 @@
         <div class="form-group row mb-2">
             <label class="text-secondary-emphasis fw-bold col-md-4 col-12" for="salesPersonId">Sales Person</label>
             <div class="col-md-8 col-12">
-                <select class="form-control" id="salesPersonId" v-model.number="requestForm.sales_person_id"
+                <select class="form-select" id="salesPersonId" v-model.number="requestForm.sales_person_id"
                     placeholder="Sales Person ID">
                     <option value="" disabled selected>Select Sales Person</option>
                     <option v-for="value in dropDownValues.salesperson" :key="value.id" :value="value.id">{{ value.name
-                    }}</option>
+                        }}</option>
                 </select>
             </div>
         </div>
@@ -92,9 +92,16 @@
 import axios from 'axios';
 import { API } from '@/utils/constants';
 import { ReferenceValues } from '@/utils/constants';
+import { toast } from 'vue3-toastify';
 
 export default {
     name: 'CreateRequestsForm',
+    props: {
+        isEdit: {
+            type: Boolean,
+            default: false
+        }
+    },
     data() {
         return {
             requestForm: {
@@ -128,13 +135,18 @@ export default {
             try {
                 this.requestForm.customer_id = parseInt(this.requestForm.customer_id);
                 this.requestForm.area_id = parseInt(this.requestForm.area_id);
-                const response = await axios.post(`${API.REQUESTS['create']}`, this.requestForm, { withCredentials: true });
+                if (!this.isEdit) {
+                    var response = await axios.post(API.REQUESTS['create'], this.requestForm, { withCredentials: true });
+
+                } else {
+                    var response = await axios.patch(`${API.REQUESTS['update']}${this.requestForm.id}`, this.requestForm, { withCredentials: true });
+                }
                 if (response.status === 200) {
-                    toast.success("Record created successfully.")
+                    toast.success(`Record ${this.isEdit ? 'edited' : 'created'} successfully.`)
                     this.$emit('request-created', response.data);
                 }
             } catch (error) {
-                console.error('Error creating request:', error);
+                console.error(`Error ${this.isEdit ? 'editing' : 'creating'} request:`, error);
             }
         },
         async fetchAllDropdownValues() {

@@ -4,7 +4,7 @@ from app.schemas.users import UserCreate, UserPublic, UserLogin
 from app.schemas.generic import APIResponse, LoginResponse
 from app.core.database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.service.user_service import create_user, login_user
+from app.services.user_service import create_user, login_user
 
 router = APIRouter(prefix="/users", tags=["users"])
 

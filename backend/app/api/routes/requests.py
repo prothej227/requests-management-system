@@ -1,9 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, Body, status
+from fastapi import APIRouter, Depends, HTTPException, status
 import app.schemas.request as record_schemas
+from app.models.stickers import Sticker, StickerCanvas
 from app.schemas.generic import APIResponse
 from app.core.database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.service.request_service import (
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy import select
+from typing import Union, Optional
+from app.services.request_service import (
     RequestService,
     CustomerService,
     AreaService,
@@ -78,8 +82,9 @@ async def update_request(
 @router.get("/requests/get/{request_id}", status_code=status.HTTP_200_OK)
 async def get_request(
     request_id: int,
+    is_normal: bool = True,
     db: AsyncSession = Depends(get_db),
-) -> record_schemas.RequestViewSchema:
+) -> Union[record_schemas.RequestViewSchema, record_schemas.RequestNormalViewSchema]:
     """
     Get a request by ID.
 
@@ -93,7 +98,7 @@ async def get_request(
     try:
         request_service = RequestService(db)
         record = await request_service.get_by_id(
-            request_id, relationships=["customer", "area"]
+            request_id, relationships=["customer", "area", "sales_person"]
         )
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
@@ -101,6 +106,10 @@ async def get_request(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Request not found"
         )
+
+    if is_normal:
+        return record_schemas.RequestNormalViewSchema.model_validate(record)
+
     # Build dict of model columns
     data = {c.name: getattr(record, c.name) for c in record.__table__.columns}
     # Add relationships if present
@@ -108,7 +117,49 @@ async def get_request(
         data["customer_name"] = getattr(record.customer, "name", None)
     if hasattr(record, "area"):
         data["area_name"] = getattr(record.area, "name", None)
+    if hasattr(record, "sales_person"):
+        data["sales_person"] = (
+            f"{getattr(record.sales_person, "first_name", "")} {getattr(record.sales_person, "last_name", "")}"
+        )
     return record_schemas.RequestViewSchema.model_validate(data)
+
+
+@router.delete("/requests/delete/{request_id}", status_code=status.HTTP_200_OK)
+async def delete_request(
+    request_id: int, db: AsyncSession = Depends(get_db)
+) -> APIResponse:
+    service = RequestService(db)
+    try:
+        op = await service.delete_by_id(request_id)
+        if not op:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Record with {request_id} cannot be found.",
+            )
+        return APIResponse(response={}, message="Delete OK.")
+    except IntegrityError as e:
+        await db.rollback()
+
+        # Find sticker canvases still referencing this request
+        stmt = (
+            select(StickerCanvas.id)
+            .join(Sticker)
+            .where(Sticker.request_id == request_id)
+            .distinct()
+        )
+
+        result = await db.execute(stmt)
+        sticker_canvas_ids = result.scalars().all()
+
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Request is used by the ff. sticker canvas: {sticker_canvas_ids}",
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(e)
+        )
 
 
 @router.get("/requests/list", status_code=status.HTTP_200_OK)

@@ -24,6 +24,12 @@ import { toast } from 'vue3-toastify';
 
 export default {
     name: 'CreateSalesPersonForm',
+    props: {
+        isEdit: {
+            type: Boolean,
+            default: false
+        }
+    },
     data() {
         return {
             salesPersonForm: {
@@ -36,7 +42,12 @@ export default {
     methods: {
         async submitForm() {
             try {
-                const response = await axios.post(`${API.MASTER.salesperson['create']}`, this.salesPersonForm, { withCredentials: true });
+                if (!this.isEdit) {
+                    var response = await axios.post(API.MASTER.salesperson['create'], this.salesPersonForm, { withCredentials: true });
+
+                } else {
+                    var response = await axios.patch(`${API.MASTER.salesperson['update']}${this.salesPersonForm.id}`, this.salesPersonForm, { withCredentials: true });
+                }
                 if (response.status === 200) {
                     this.$emit('salesperson-created', response.data);
                 }

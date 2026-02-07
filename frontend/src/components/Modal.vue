@@ -53,12 +53,24 @@ onMounted(() => {
         thisModalObj = new Modal(modalEle.value);
     }
 });
+onMounted(() => {
+    if (modalEle.value) {
+        thisModalObj = new Modal(modalEle.value);
+
+        modalEle.value.addEventListener('hide.bs.modal', () => {
+            const active = document.activeElement;
+            if (active) active.blur();
+        });
+    }
+});
 
 // exposed methods
 function _show() {
     thisModalObj?.show();
 }
 function _hide() {
+    const active = document.activeElement
+    if (active) active.blur()
     thisModalObj?.hide();
 }
 

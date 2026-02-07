@@ -25,10 +25,12 @@ class UtilService:
         self.db = db
 
     async def get_dropdown_values(
-        self, category: str, field_names: list[str]
+        self, category: str, field_names: Optional[list[str]] = None
     ) -> List[Dict[str, Any]]:
         if not category:
             return []
+        if not field_names:
+            field_names = UtilService._FIELD_NAMES_MAPPING[category]
         repo_class = UtilService._REPO_MAPPING.get(category.lower())
         if not repo_class:
             raise ValueError(

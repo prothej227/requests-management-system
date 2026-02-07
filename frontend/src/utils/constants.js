@@ -2,6 +2,7 @@ const BASE_API_URL = process.env.VUE_APP_RMS_BACKEND_API;
 
 const TableHeaders = {
   REQUESTS: [
+    { text: "", value: "actions" },
     { text: "ID", value: "id" },
     { text: "Lab Reference No.", value: "ref_no" },
     { text: "Date Received", value: "date_received" },
@@ -18,15 +19,18 @@ const TableHeaders = {
   ],
   MASTER: {
     customer: [
+      { text: "", value: "actions", width: 1 },
       { text: "ID", value: "id" },
       { text: "Customer Name", value: "name" },
     ],
     area: [
+      { text: "", value: "actions", width: 1 },
       { text: "ID", value: "id", width: 1 },
       { text: "Logo", value: "logo", width: 100 },
       { text: "Area Name", value: "name" },
     ],
     salesperson: [
+      { text: "", value: "actions", width: 1 },
       { text: "ID", value: "id" },
       { text: "First Name", value: "first_name" },
       { text: "Last Name", value: "last_name" },
@@ -60,23 +64,33 @@ const ReferenceValues = {
 };
 
 const API = {
+  DASHBOARD: {
+    request_kpi_data: `${BASE_API_URL}/dashboard/request-data`,
+    request_by_area: `${BASE_API_URL}/dashboard/request-count-by-area`,
+  },
   REQUESTS: {
     list: `${BASE_API_URL}/records/requests/list`,
+    get: `${BASE_API_URL}/records/requests/get/`,
     create: `${BASE_API_URL}/records/requests/create`,
+    update: `${BASE_API_URL}/records/requests/update/`,
+    delete: `${BASE_API_URL}/records/requests/delete/`,
     "create-all-dropdown-values": `${BASE_API_URL}/utils/all-dropdown-values`,
   },
   MASTER: {
     customer: {
       list: `${BASE_API_URL}/records/customers/list`,
       create: `${BASE_API_URL}/records/customers/create`,
+      update: `${BASE_API_URL}/records/customers/update/`,
     },
     area: {
       list: `${BASE_API_URL}/records/areas/list`,
       create: `${BASE_API_URL}/records/areas/create`,
+      update: `${BASE_API_URL}/records/areas/update/`,
     },
     salesperson: {
       list: `${BASE_API_URL}/records/sales-persons/list`,
       create: `${BASE_API_URL}/records/sales-persons/create`,
+      update: `${BASE_API_URL}/records/sales-persons/update/`,
     },
   },
   STICKERS: {

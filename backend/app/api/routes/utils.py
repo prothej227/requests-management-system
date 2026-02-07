@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.schemas.generic import APIResponse
 from app.core.database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.service.util_service import UtilService
+from app.services.util_service import UtilService
 
 router = APIRouter(prefix="/utils", tags=["utils"])
 

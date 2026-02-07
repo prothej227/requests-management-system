@@ -10,6 +10,17 @@
     <EasyDataTable v-model:server-options="serverOptions" :headers="headers" :items="items" :key="serverOptions.page"
         :server-items-length="serverItemsLength" :loading="isDataTableLoading" :theme-color="'#007bff'"
         buttons-pagination border-cell alternating>
+        <template #item-actions="{ id }">
+            <div class="btn-group gap-1">
+                <button class="btn btn-sm btn-outline-primary" @click="showEditRequestModal(id)"><i
+                        class="bi bi-pencil-square"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" @click.submit="handleDeleteDialog(id)"><i
+                        class="bi bi-trash"></i>
+                </button>
+            </div>
+
+        </template>
     </EasyDataTable>
     <Modal ref="createRequest" title="Create Request" biHeaderIcon="bi bi-plus-circle">
         <template #body>
@@ -22,6 +33,20 @@
             </button>
         </template>
     </Modal>
+    <Modal ref="editRequest" title="Edit Request" biHeaderIcon="bi bi-pencil-square">
+        <template #body>
+            <CreateRequestsForm ref="editRequestForm" :is-edit="true" />
+        </template>
+        <template #footer>
+            <button class="btn btn-primary" @click="submitEditForm">
+                <i class="bi bi-arrow-return-right"></i>
+                Submit
+            </button>
+        </template>
+    </Modal>
+    <DeleteDialog ref="deleteDialog" :id-to-delete="deleteDialogData.selectedId"
+        :delete-endpoint-url="deleteDialogData.deleteUrl" @delete:success="onDeleteSuccess"
+        @delete:error="onDeleteError" />
 </template>
 <script>
 
@@ -32,6 +57,8 @@ import CreateRequestsForm from '@/components/forms/CreateRequestsForm.vue';
 import axios from 'axios';
 import Modal from '@/components/Modal.vue';
 import { toast } from 'vue3-toastify';
+import { getItemByUrl } from '@/utils/helpers';
+import DeleteDialog from '@/components/DeleteDialog.vue';
 
 export default {
     name: 'RequestsView',
@@ -39,15 +66,21 @@ export default {
         EasyDataTable: window['vue3-easy-data-table'],
         ActionButton,
         Modal,
-        CreateRequestsForm
+        CreateRequestsForm,
+        DeleteDialog
     },
     data() {
         return {
             items: [],
+            deleteDialogData: {
+                selectedId: null,
+                deleteUrl: API.REQUESTS.delete
+            },
+            selectedItemToDelete: null,
             headers: TableHeaders.REQUESTS,
             serverOptions: {
                 page: 1,
-                rowsPerPage: 30,
+                rowsPerPage: 10,
                 sortBy: '',
                 sortType: '',
                 filters: {},
@@ -76,7 +109,7 @@ export default {
             this.isDataTableLoading = true;
             try {
                 // Calculate start_index and batch_size
-                const batch_size = this.serverOptions.rowsPerPage || 30;
+                const batch_size = this.serverOptions.rowsPerPage || 10;
                 const start_index = ((this.serverOptions.page || 1) - 1) * batch_size;
                 // Build query params
                 const params = new URLSearchParams({
@@ -128,6 +161,16 @@ export default {
                 this.$refs.createRequest.show();
             }
         },
+        getItemByUrl,
+        async showEditRequestModal(id) {
+            const item = await getItemByUrl(`${API.REQUESTS.get}${id}`)
+            if (this.$refs.editRequestForm) {
+                this.$refs.editRequestForm.requestForm = item;
+            }
+            if (this.$refs.editRequest && typeof this.$refs.editRequest.show === 'function') {
+                this.$refs.editRequest.show();
+            }
+        },
         async submitCreateForm() {
             if (this.$refs.createRequestForm && typeof this.$refs.createRequestForm.submitForm === 'function') {
                 try {
@@ -141,6 +184,34 @@ export default {
                 }
             }
         },
+        async submitEditForm() {
+            if (this.$refs.editRequestForm && typeof this.$refs.editRequestForm.submitForm === 'function') {
+                try {
+                    await this.$refs.editRequestForm.submitForm();
+                    if (this.$refs.editRequest && typeof this.$refs.editRequest.hide === 'function') {
+                        this.$refs.editRequest.hide();
+                    }
+                    this.fetchRequests();
+                } catch (error) {
+                    console.error('Error submitting edit request form:', error);
+                }
+            }
+        },
+        onDeleteSuccess(id) {
+            toast.success(`Record ${id} deleted.`)
+            this.deleteDialogData.selectedId = null,
+                this.fetchRequests()
+        },
+        onDeleteError({ id, error }) {
+            toast.error(`Failed to delete record ${id}.`)
+            toast.warn(error?.response?.data?.detail, { autoClose: false })
+            this.deleteDialogData.selectedId = null
+        },
+        async handleDeleteDialog(id) {
+            this.deleteDialogData.selectedId = id;
+            this.$.refs.deleteDialog.showDeleteConfirmation()
+        }
+
     },
 }
 </script>

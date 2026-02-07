@@ -3,8 +3,8 @@ import App from "./App.vue";
 import router from "./router";
 import Vue3EasyDataTable from "vue3-easy-data-table";
 import Vue3Toastify from "vue3-toastify";
-//import "bootstrap/dist/css/bootstrap.min.css"
-import "bootswatch/dist/flatly/bootstrap.min.css";
+// import "bootstrap/dist/css/bootstrap.min.css";
+import "bootswatch/dist/yeti/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "bootstrap";

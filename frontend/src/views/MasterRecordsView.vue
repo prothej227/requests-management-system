@@ -11,6 +11,11 @@
         <EasyDataTable v-model:server-options="serverOptions" :headers="headers" :items="items"
             :key="serverOptions.page" :server-items-length="serverItemsLength" :loading="isDataTableLoading"
             :theme-color="'#007bff'" buttons-pagination border-cell alternating>
+            <template #item-actions="item">
+                <button class="btn btn-sm btn-outline-primary" @click="showEditMasterRecordModal(item)"><i
+                        class="bi bi-pencil-square"></i>
+                </button>
+            </template>
             <!-- // Custom Templates for Area -->
             <template v-if="recordName === 'area'" #header-logo="header">
                 <div class="d-flex justify-content-center align-items-center w-100 h-100">
@@ -36,6 +41,23 @@
             </template>
             <template #footer>
                 <button class="btn btn-primary" @click="submitCreateForm">
+                    <i class="bi bi-arrow-return-right"></i>
+                    Submit
+                </button>
+            </template>
+        </Modal>
+        <Modal ref="editMasterRecordModal" :title="`Edit ${toProperCase(recordName)}`"
+            biHeaderIcon="bi bi-pencil-square">
+            <template #body>
+                <CreateCustomerForm v-if="recordName === 'customer'" ref="editCustomerForm" :is-edit="true"
+                    @customer-created="fetchRequests(tableListUrl)" />
+                <CreateAreaForm v-else-if="recordName === 'area'" ref="editAreaForm" :is-edit="true"
+                    @area-created="fetchRequests(tableListUrl)" />
+                <CreateSalesPersonForm v-else-if="recordName === 'salesperson'" ref="editSalesPersonForm"
+                    :is-edit="true" @salesperson-created="fetchRequests(tableListUrl)" />
+            </template>
+            <template #footer>
+                <button class="btn btn-primary" @click="submitEditForm">
                     <i class="bi bi-arrow-return-right"></i>
                     Submit
                 </button>
@@ -175,6 +197,16 @@ export default {
 
             this.$refs.createMasterRecordModal.show();
         },
+        async showEditMasterRecordModal(item) {
+            if (this.recordName === 'customer') {
+                this.$.refs.editCustomerForm.customerForm = item
+            } else if (this.recordName === 'area') {
+                this.$.refs.editAreaForm.areaForm = item
+            } else if (this.recordName === 'salesperson') {
+                this.$.refs.editSalesPersonForm.salesPersonForm = item
+            }
+            this.$refs.editMasterRecordModal.show();
+        },
         async submitCreateForm() {
             if (this.recordName === 'customer') {
                 try {
@@ -198,6 +230,30 @@ export default {
             }
             toast.success("Record created successfully.")
             this.$refs.createMasterRecordModal.hide();
+        },
+        async submitEditForm() {
+            if (this.recordName === 'customer') {
+                try {
+                    await this.$refs.editCustomerForm.submitForm();
+                } catch (error) {
+                    toast.error('Error submitting customer form:', error);
+                }
+
+            } else if (this.recordName === 'area') {
+                try {
+                    await this.$refs.editAreaForm.submitForm();
+                } catch (error) {
+                    toast.error('Error submitting area form:', error);
+                }
+            } else if (this.recordName === 'salesperson') {
+                try {
+                    await this.$refs.editSalesPersonForm.submitForm();
+                } catch (error) {
+                    toast.error('Error submitting salesperson form:', error);
+                }
+            }
+            toast.success("Record edited successfully.")
+            this.$refs.editMasterRecordModal.hide();
         },
         toProperCase
     }

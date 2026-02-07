@@ -3,12 +3,15 @@
         <ActionButton :visibility="actionButtonEnabledConfig.visibility" @refresh="fetchRequests" />
         <EasyDataTable v-model:server-options="serverOptions" :headers="headers" :items="items"
             :key="serverOptions.page" :server-items-length="serverItemsLength" :loading="isDataTableLoading"
-            :theme-color="'#007bff'" buttons-pagination border-cell alternating @click-row="onRowClick">
+            :theme-color="'#007bff'" buttons-pagination border-cell alternating>
+            <template #item-actions="item">
+                <button class="btn btn-sm btn-outline-primary" @click.prevent="onRowClick(item)">+</button>
+            </template>
         </EasyDataTable>
         <hr>
         <span class="fw-bold my-1">Selected Requests for Sticker Canvas:</span>
         <EasyDataTable v-model:items="selectedRequestsTable.items" :headers="selectedRequestsTable.headers"
-            rows-per-page="5" :theme-color="'#28a745'" border-cell alternating>
+            :rows-per-page="5" :theme-color="'#28a745'" border-cell alternating>
             <template #item-actions="{ rowNumber }">
                 <button class="btn btn-sm btn-danger" @click.prevent="removeSelectedRequestRow(rowNumber)">
                     <i class="bi bi-trash"></i>
@@ -67,6 +70,12 @@ export default {
             }));
         }
     },
+    watch: {
+        serverOptions: {
+            handler: 'fetchRequests',
+            deep: true,
+        },
+    },
     methods: {
         async submitForm() {
             try {
@@ -113,6 +122,7 @@ export default {
             }
         },
         async onRowClick(row) {
+            delete row.key
             this.selectedRequestsTable.items.push({
                 ...row,
                 rowNumber: nextRowNumber++

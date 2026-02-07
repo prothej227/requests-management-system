@@ -155,6 +155,34 @@ class RequestViewSchema(BaseModel):
         from_attributes = True
 
 
+class RequestNormalViewSchema(BaseModel):
+    id: int
+
+    ref_no: str
+    date_received: Optional[date]
+
+    status: Optional[str]
+    feedback: Optional[str]
+    lpo_no: Optional[str]
+    quantity: Optional[int]
+    short_description: Optional[str]
+    long_description: Optional[str]
+
+    sales_person_id: Optional[int]
+
+    created_by: Optional[str]
+    created_on: datetime
+
+    modified_by: Optional[str]
+    modified_on: Optional[datetime]
+
+    customer_id: Optional[int]
+    area_id: Optional[int]
+
+    class Config:
+        from_attributes = True
+
+
 class RequestResponseWithCount(BaseModel):
     total_count: int
     records: (

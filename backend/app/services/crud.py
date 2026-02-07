@@ -85,3 +85,6 @@ class CrudService(Generic[RecordType, CreateSchemaType, UpdateSchemaType]):
 
     async def get_all(self, start_index: int, batch_size: int) -> List[RecordType]:
         return await self.repo.get_all(start_index, batch_size)
+
+    async def delete_by_id(self, id: int) -> bool:
+        return await self.repo.delete_by_id(id)

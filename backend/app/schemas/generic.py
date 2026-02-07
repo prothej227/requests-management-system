@@ -4,7 +4,7 @@ from app.core.types import *
 
 
 class APIResponse(BaseModel):
-    response: Optional[Dict[str, Any]]
+    response: Optional[Dict[str, Any]] | Any
     message: Optional[str] = "Request processed sucessfully."
 
 

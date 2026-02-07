@@ -180,3 +180,20 @@ class AbstractAsyncRepository(ABC, Generic[RecordType]):
 
         result = await self.db.execute(query)
         return result.scalar_one() > 0
+
+    async def delete_by_id(self, id: int) -> bool:
+        if id is None:
+            raise ValueError("Invalid ID.")
+
+        record = await self.get_by_id(id)
+
+        if not record:
+            return False
+
+        try:
+            await self.db.delete(record)
+            await self.db.commit()
+            return True
+        except Exception as e:
+            await self.db.rollback()
+            raise e

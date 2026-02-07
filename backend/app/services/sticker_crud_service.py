@@ -1,4 +1,4 @@
-from app.service.crud import CrudService
+from app.services.crud import CrudService
 from app.schemas import sticker
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.stickers import Sticker, StickerCanvas
