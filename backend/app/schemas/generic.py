@@ -11,4 +11,4 @@ class APIResponse(BaseModel):
 class LoginResponse(BaseModel):
     message: str
     access_token: str
-    user: UserPublic
+    user: UserPublic | Dict

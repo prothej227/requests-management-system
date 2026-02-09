@@ -68,6 +68,12 @@ const API = {
     request_kpi_data: `${BASE_API_URL}/dashboard/request-data`,
     request_by_area: `${BASE_API_URL}/dashboard/request-count-by-area`,
   },
+  USERS: {
+    post_login: `${BASE_API_URL}/users/login`,
+    post_signup: `${BASE_API_URL}/users/signup`,
+    get_me: `${BASE_API_URL}/users/me`,
+    post_logout: `${BASE_API_URL}/users/logout`,
+  },
   REQUESTS: {
     list: `${BASE_API_URL}/records/requests/list`,
     get: `${BASE_API_URL}/records/requests/get/`,
@@ -100,6 +106,7 @@ const API = {
     list: `${BASE_API_URL}/sticker-service/canvas/list`,
     create: `${BASE_API_URL}/sticker-service/canvas/create`,
     sticker_download_base_url: `${BASE_API_URL}/sticker-service/document`,
+    delete: `${BASE_API_URL}/sticker-service/canvas/delete/`,
     generate_sticker_canvas: `${BASE_API_URL}/sticker-service/generate-sticker-pdf`,
   },
 };

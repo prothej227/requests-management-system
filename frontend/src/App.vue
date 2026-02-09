@@ -1,23 +1,39 @@
 <script>
 import Sidebar from '@/components/Sidebar.vue';
 import TopHeader from '@/components/TopHeader.vue';
-
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 export default {
   name: 'App',
   components: {
     TopHeader,
     Sidebar
+  },
+  mounted() {
+    document.title = process.env.VUE_APP_APP_TITLE
+  },
+  setup() {
+    const route = useRoute();
+    const hasNoAuth = computed(() => route.meta.requiresAuth === false);
+    return { hasNoAuth }
   }
 }
+
 </script>
 
 <template>
-  <div lang="en" data-bs-theme="light">
+  <div v-if="hasNoAuth" lang="en" data-bs-theme="light">
+    <router-view />
+  </div>
+  <div v-else lang="en" data-bs-theme="light">
+    <!-- LOGIN / PUBLIC PAGES -->
+
+    <!-- AUTHENTICATED APP -->
     <TopHeader />
     <div class="container-fluid min-vh-100">
       <div class="row min-vh-100">
         <Sidebar />
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4"">
           <router-view />
         </main>
       </div>
@@ -115,5 +131,9 @@ export default {
 div {
   display: block;
   unicode-bidi: isolate;
+}
+
+.login-page {
+  overflow: hidden;
 }
 </style>

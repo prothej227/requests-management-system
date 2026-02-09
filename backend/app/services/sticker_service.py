@@ -219,13 +219,20 @@ class StickerStorageService:
     def __init__(self):
         self.storage_path = settings.sticker_storage_dir_resolved
 
-    def get_document_by_id(self, relative_path: str) -> bytes:
+    async def get_document_by_id(self, relative_path: str) -> bytes:
         document_path = self.storage_path / Path(relative_path)
         if not document_path.exists():
             raise FileNotFoundError(
                 f"Document with path={str(document_path)} does not exists."
             )
         return Path(document_path).read_bytes()
+
+    async def delete_document_by_id(self, relative_path: str) -> bool:
+        document_path = self.storage_path / Path(relative_path)
+        if document_path.exists():
+            document_path.unlink()
+            return True
+        return False
 
     async def save_document_bytes(self, pdf_bytes: bytes) -> DocumentInformation:
         now = datetime.now(ZoneInfo(settings.timezone))

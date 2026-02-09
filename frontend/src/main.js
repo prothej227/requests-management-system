@@ -11,9 +11,11 @@ import "bootstrap";
 import "@/assets/main.css";
 import "vue3-easy-data-table/dist/style.css";
 import "vue3-toastify/dist/index.css";
+import { createPinia } from "pinia";
 
 const app = createApp(App);
 app.use(router);
+app.use(createPinia());
 app.use(Vue3Toastify, {
   autoClose: 3000,
   position: "top-right",

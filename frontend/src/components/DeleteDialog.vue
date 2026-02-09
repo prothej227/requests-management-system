@@ -24,7 +24,8 @@ export default {
 
     props: {
         idToDelete: Number,
-        deleteEndpointUrl: String
+        deleteEndpointUrl: String,
+        extraRequestParams: Object
     },
 
     methods: {
@@ -34,9 +35,9 @@ export default {
 
         async submitDeleteRequest() {
             try {
-                const response = await axios.delete(
-                    `${this.deleteEndpointUrl}${this.idToDelete}`
-                )
+                const response = await axios.delete(`${this.deleteEndpointUrl}${this.idToDelete}`, {
+                    params: this.extraRequestParams
+                });
 
                 if (response.status === 200) {
                     this.$emit('delete:success', this.idToDelete)

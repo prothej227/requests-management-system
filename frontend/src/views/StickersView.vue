@@ -15,15 +15,18 @@
                 <span>{{ header.text }}</span>
             </div>
         </template>
-        <template #item-actions="{ id }">
-            <div class="d-flex align-items-center justify-items-center">
-                <button type="button" class="btn btn-outline-primary btn-sm me-1" @click="generateStickerCanvas(id)">
+        <template #item-actions="{ id, relative_file_path }">
+            <div class="btn-group gap-1">
+                <button type="button" class="btn btn-outline-primary btn-sm" @click="generateStickerCanvas(id)">
                     <template v-if="loadingItemIds.has(id)">
                         <span class="spinner-border spinner-border-sm" role="status"></span>
                     </template>
                     <template v-else>
                         <i class="bi bi-file-earmark-plus-fill"></i>
                     </template>
+                </button>
+                <button class="btn btn-sm btn-outline-danger"
+                    @click.submit="handleDeleteDialog(id, relative_file_path)"><i class="bi bi-trash"></i>
                 </button>
                 <button type="button" disabled class="btn btn-outline-secondary btn-sm">
                     <i class="bi bi-eye-fill"></i>
@@ -64,6 +67,9 @@
             </button>
         </template>
     </Modal>
+    <DeleteDialog ref="deleteDialog" :id-to-delete="deleteDialogData.selectedId"
+        :delete-endpoint-url="deleteDialogData.deleteUrl" @delete:success="onDeleteSuccess"
+        :extra-request-params="deleteDialogData.extraParams" @delete:error="onDeleteError" />
 </template>
 <script>
 
@@ -73,6 +79,7 @@ import CreateStickerCanvasForm from '@/components/forms/CreateStickerCanvasForm.
 import axios from 'axios';
 import Modal from '@/components/Modal.vue';
 import { toast } from 'vue3-toastify';
+import DeleteDialog from '@/components/DeleteDialog.vue';
 
 export default {
     name: 'StickersView',
@@ -80,11 +87,17 @@ export default {
         EasyDataTable: window['vue3-easy-data-table'],
         ActionButton,
         Modal,
+        DeleteDialog,
         CreateStickerCanvasForm
     },
     data() {
         return {
             items: [],
+            deleteDialogData: {
+                selectedId: null,
+                deleteUrl: API.STICKERS.delete,
+                extraParams: null
+            },
             headers: TableHeaders.STICKERS.canvas,
             serverOptions: {
                 page: 1,
@@ -208,6 +221,24 @@ export default {
         },
         downloadStickerCanvas(id) {
             window.open(`${this.stickerDownloadBaseUrl}/${id}`, "_blank")
+        },
+        onDeleteSuccess(id) {
+            toast.success(`Record ${id} deleted.`)
+            this.deleteDialogData.selectedId = null,
+                this.fetchRequests()
+        },
+        onDeleteError({ id, error }) {
+            toast.error(`Failed to delete record ${id}.`)
+            toast.warn(error?.response?.data?.detail, { autoClose: false })
+            this.deleteDialogData.selectedId = null
+            this.deleteDialogData.extraParams = null
+        },
+        async handleDeleteDialog(id, relative_file_path) {
+            this.deleteDialogData.selectedId = id
+            this.deleteDialogData.extraParams = {
+                relative_path: relative_file_path
+            }
+            this.$.refs.deleteDialog.showDeleteConfirmation()
         }
     }
 }

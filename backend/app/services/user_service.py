@@ -160,7 +160,7 @@ async def login_user(
     }
 
 
-async def get_current_user(request: Request) -> UserPublic:
+async def get_current_user(request: Request) -> tuple[UserPublic, str]:
     """
     Get current user or session instance
 
@@ -186,11 +186,14 @@ async def get_current_user(request: Request) -> UserPublic:
         )
     _payload_username = payload.get("sub")
     _payload_id = payload.get("id")
-    return UserPublic(
-        id=_payload_id if _payload_id else -1,
-        email=payload.get("email", ""),
-        username=_payload_username if _payload_username else "",
-        role=payload.get("role", ""),
-        is_active=payload.get("is_active", False),
-        full_name=payload.get("full_name", ""),
+    return (
+        UserPublic(
+            id=_payload_id if _payload_id else -1,
+            email=payload.get("email", ""),
+            username=_payload_username if _payload_username else "",
+            role=payload.get("role", ""),
+            is_active=payload.get("is_active", False),
+            full_name=payload.get("full_name", ""),
+        ),
+        token,
     )

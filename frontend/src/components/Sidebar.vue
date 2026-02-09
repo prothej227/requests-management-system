@@ -69,8 +69,9 @@
                                 class="bi bi-gear" aria-hidden="true"></i>
                             Settings
                         </a> </li>
-                    <li class="nav-item"> <a class="nav-link d-flex align-items-center gap-2" href="#"> <i
-                                class="bi bi-door-closed" aria-hidden="true"></i>
+                    <li @click.prevent="logout" class="nav-item"> <a class="nav-link d-flex align-items-center gap-2"
+                            href="/">
+                            <i class="bi bi-door-closed" aria-hidden="true"></i>
                             Sign out
                         </a> </li>
                 </ul>
@@ -79,9 +80,23 @@
     </div>
 </template>
 <script>
+import { API } from '@/utils/constants';
 import { RouterLink } from 'vue-router';
 export default {
     name: 'Sidebar',
+    methods: {
+        async logout() {
+            try {
+                await fetch(API.USERS.post_logout, {
+                    method: "POST",
+                    credentials: "include"
+                });
+                this.$router.push("/login");
+            } catch (err) {
+                console.error("Logout failed", err);
+            }
+        }
+    }
 };
 </script>
 <style scoped>

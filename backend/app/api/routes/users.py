@@ -1,10 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status, Request
 from app.repositories.user import UserRepository
 from app.schemas.users import UserCreate, UserPublic, UserLogin
 from app.schemas.generic import APIResponse, LoginResponse
 from app.core.database import get_db
+from app.services import user_service
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.services.user_service import create_user, login_user
+from jose import jwt, JWTError
+from app.core.config import get_settings
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -87,10 +90,39 @@ async def authenticate_user(
             username=user_data.username,
             role=user_data.role,
             is_active=user_data.is_active,
-            full_name=(
-                f"{user_data.first_name} {user_data.last_name}"
-                if user_data.first_name and user_data.last_name
-                else None
-            ),
+            first_name=user_data.first_name,
+            last_name=user_data.last_name,
         ),
     )
+
+
+@router.get("/me", response_model=LoginResponse)
+async def get_me(request: Request):
+    """
+    Get the currently authenticated user.
+
+    Returns:
+        User: The authenticated user object.
+    """
+    # This function would typically extract the user from the request context
+    # or session, but for simplicity, we return a placeholder here.
+    current_user, token = await user_service.get_current_user(request)
+    return LoginResponse(
+        message=f"{current_user.username} authenticated successfully.",
+        access_token=token,
+        user=current_user,
+    )
+
+
+@router.post("/logout")
+async def logout(response: Response):
+    """
+    Logs out the user by clearing the access token cookie.
+    """
+    response.delete_cookie(
+        key="access_token",
+        httponly=True,
+        samesite="lax",
+        secure=False,
+    )
+    return {"message": "Logged out successfully"}

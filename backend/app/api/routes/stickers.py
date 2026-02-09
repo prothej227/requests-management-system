@@ -10,7 +10,7 @@ from app.services.sticker_crud_service import (
     StickerCanvasCrudService,
     StickerCrudService,
 )
-from fastapi.responses import FileResponse
+from app.core.types import *
 
 router = APIRouter(prefix="/sticker-service", tags=["stickers"])
 
@@ -140,15 +140,17 @@ async def get_sticker_canvas(
 
 @router.delete("/canvas/delete/{sticker_canvas_id}", status_code=status.HTTP_200_OK)
 async def delete_sticker_canvas(
-    sticker_canvas_id: int, db: AsyncSession = Depends(get_db)
+    sticker_canvas_id: int,
+    relative_path: Optional[str] = None,
+    db: AsyncSession = Depends(get_db),
 ) -> APIResponse:
     service = StickerCanvasCrudService(db)
     try:
-        op = await service.delete_by_id(sticker_canvas_id)
+        op = await service.delete_by_id(sticker_canvas_id, relative_path)
         if not op:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Record with {sticker_canvas_id} cannot be found.",
+                detail=f"Record with {sticker_canvas_id} cannot be found or cannot be deleted.",
             )
         return APIResponse(response={}, message="Delete OK.")
 
@@ -251,7 +253,7 @@ async def download_sticker_canvas(
                 detail=f"Sticker canvas ID = {sticker_canvas_id} cannot be found.",
             )
         relative_path = getattr(canvas, "relative_file_path")
-        pdf_bytes = storage_service.get_document_by_id(relative_path)
+        pdf_bytes = await storage_service.get_document_by_id(relative_path)
         return Response(
             content=pdf_bytes,
             media_type="application/pdf",
