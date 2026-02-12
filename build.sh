@@ -47,6 +47,7 @@ if [ ! -d ".venv" ]; then
     $PYTHON_CMD -m venv .venv
 fi
 
+# Activate venv
 if [ "$PLATFORM" = "Windows" ]; then
     source .venv/Scripts/activate
 else
@@ -78,10 +79,11 @@ fi
 
 echo "[INFO] Using DB file: $DB_NAME"
 
+# Update alembic.ini
 if [ "$PLATFORM" = "Mac" ]; then
     sed -i '' "s|^sqlalchemy.url.*|sqlalchemy.url = sqlite:///$DB_NAME|" alembic.ini
 else
-    sed -i.bak "s|^sqlalchemy.url.*|sqlalchemy.url = sqlite:///$DB_NAME|" alembic.ini
+    sed -i "s|^sqlalchemy.url.*|sqlalchemy.url = sqlite:///$DB_NAME|" alembic.ini
 fi
 
 # ==============================
@@ -91,18 +93,32 @@ ENV_FILE="migrations/env.py"
 
 # Insert Base import if missing
 if ! grep -q "from app.core.database import Base" "$ENV_FILE"; then
-    sed -i.bak "/fileConfig/a\\
+    if [ "$PLATFORM" = "Mac" ]; then
+        sed -i '' "/fileConfig/a\\
 from app.core.database import Base" "$ENV_FILE"
+    else
+        sed -i "/fileConfig/a\\
+from app.core.database import Base" "$ENV_FILE"
+    fi
 fi
 
 # Insert models import right after Base
 if ! grep -q "from app.models import \*" "$ENV_FILE"; then
-    sed -i.bak "/from app.core.database import Base/a\\
+    if [ "$PLATFORM" = "Mac" ]; then
+        sed -i '' "/from app.core.database import Base/a\\
 from app.models import *" "$ENV_FILE"
+    else
+        sed -i "/from app.core.database import Base/a\\
+from app.models import *" "$ENV_FILE"
+    fi
 fi
 
 # Set target_metadata
-sed -i.bak "s|target_metadata = None|target_metadata = Base.metadata|" "$ENV_FILE"
+if [ "$PLATFORM" = "Mac" ]; then
+    sed -i '' "s|target_metadata = None|target_metadata = Base.metadata|" "$ENV_FILE"
+else
+    sed -i "s|target_metadata = None|target_metadata = Base.metadata|" "$ENV_FILE"
+fi
 
 echo "[INFO] Alembic configured successfully."
 
@@ -125,6 +141,7 @@ echo "[INFO] Building Vue frontend..."
 cd frontend
 npm install
 npm run build
+
 cd ..
 
 # ==============================
