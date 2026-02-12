@@ -64,9 +64,9 @@ echo "[INFO] Using DB file: $DB_NAME"
 
 # Update alembic.ini
 if [ "$PLATFORM" = "Mac" ]; then
-    sed -i '' "s|^sqlalchemy.url.*|sqlalchemy.url = sqlite:///$DB_NAME|" alembic.ini
+    sed -i '' "s|^sqlalchemy.url.*|sqlalchemy.url = sqlite:///tmp/$DB_NAME|" alembic.ini
 else
-    sed -i "s|^sqlalchemy.url.*|sqlalchemy.url = sqlite:///$DB_NAME|" alembic.ini
+    sed -i "s|^sqlalchemy.url.*|sqlalchemy.url = sqlite:///tmp/$DB_NAME|" alembic.ini
 fi
 
 # ==============================
