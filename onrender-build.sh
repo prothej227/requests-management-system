@@ -123,35 +123,6 @@ echo "[INFO] Alembic configured successfully."
 echo "[INFO] Applying Alembic migrations..."
 alembic upgrade head
 
-# ==============================
-# 6. OPTIONAL: CREATE DEFAULT ADMIN
-# ==============================
-echo "[INFO] Seeding default admin user..."
-python - <<END
-from app.core.database import async_session_maker, Base, engine
-from app.models import User
-import asyncio
-import hashlib
-
-async def seed_admin():
-    async with async_session_maker() as session:
-        result = await session.execute("SELECT * FROM users WHERE username='admin'")
-        if result.first() is None:
-            admin = User(
-                username='admin',
-                first_name='Admin',
-                last_name='User',
-                email='admin@example.com',
-                password_hash=hashlib.sha256('Admin1234'.encode()).hexdigest(),
-                role='admin',
-                is_active=True
-            )
-            session.add(admin)
-            await session.commit()
-
-asyncio.run(seed_admin())
-END
-
 cd ..
 
 # ==============================
