@@ -43,7 +43,7 @@ echo "[INFO] Upgrading pip..."
 $PYTHON_CMD -m pip install --upgrade pip
 
 echo "[INFO] Installing backend dependencies..."
-pip install -r requirements.tx
+pip install -r requirements.txt
 
 cd ..
 
