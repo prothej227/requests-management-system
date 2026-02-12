@@ -7,14 +7,12 @@ echo "[INFO] Starting full production build..."
 # 0. Detect OS
 # ==============================
 OS_TYPE="$(uname -s)"
-
 case "${OS_TYPE}" in
     Linux*)     PLATFORM="Linux" ;;
     Darwin*)    PLATFORM="Mac" ;;
     CYGWIN*|MINGW*|MSYS*) PLATFORM="Windows" ;;
     *)          PLATFORM="Unknown" ;;
 esac
-
 echo "[INFO] Detected OS: $PLATFORM"
 
 # ==============================
@@ -28,7 +26,6 @@ else
     echo "[ERROR] Python not found."
     exit 1
 fi
-
 echo "[INFO] Using Python command: $PYTHON_CMD"
 
 PY_VERSION=$($PYTHON_CMD -c "import sys; print(sys.version_info.major)")
@@ -42,6 +39,18 @@ fi
 # ==============================
 cd backend
 
+if [ ! -d ".venv" ]; then
+    echo "[INFO] Creating virtual environment..."
+    $PYTHON_CMD -m venv .venv
+fi
+
+# Activate venv
+if [ "$PLATFORM" = "Windows" ]; then
+    source .venv/Scripts/activate
+else
+    source .venv/bin/activate
+fi
+
 echo "[INFO] Upgrading pip..."
 $PYTHON_CMD -m pip install --upgrade pip
 
@@ -49,21 +58,13 @@ echo "[INFO] Installing backend dependencies..."
 pip install -r requirements.txt
 
 # ==============================
-# 3. ALEMBIC INIT
+# 3. SET DATABASE PATH
 # ==============================
-if [ ! -d "migrations" ]; then
-    echo "[INFO] Initializing Alembic..."
-    alembic init migrations
-fi
-
-# ==============================
-# 4. ASK FOR DATABASE FILE
-# ==============================
+# SQLite in /tmp (writable on Render)
 DB_NAME=${DB_NAME:-database.db}
-echo "[INFO] Using DB file: $DB_NAME"
-
-# Absolute path to /tmp
 DB_PATH="/tmp/$DB_NAME"
+export DATABASE_URL="sqlite+aiosqlite:///$DB_PATH"
+echo "[INFO] Using SQLite database: $DB_PATH"
 
 # Update alembic.ini
 if [ "$PLATFORM" = "Mac" ]; then
@@ -73,7 +74,7 @@ else
 fi
 
 # ==============================
-# 5. PATCH env.py
+# 4. PATCH env.py
 # ==============================
 ENV_FILE="migrations/env.py"
 
@@ -109,13 +110,39 @@ fi
 echo "[INFO] Alembic configured successfully."
 
 # ==============================
-# 6. RUN MIGRATIONS
+# 5. RUN MIGRATIONS
 # ==============================
-echo "[INFO] Creating initial migration..."
-alembic revision --autogenerate -m "initial setup"
-
-echo "[INFO] Applying migrations..."
+echo "[INFO] Applying Alembic migrations..."
 alembic upgrade head
+
+# ==============================
+# 6. OPTIONAL: CREATE DEFAULT ADMIN
+# ==============================
+echo "[INFO] Seeding default admin user..."
+python - <<END
+from app.core.database import async_session_maker, Base, engine
+from app.models import User
+import asyncio
+import hashlib
+
+async def seed_admin():
+    async with async_session_maker() as session:
+        result = await session.execute("SELECT * FROM users WHERE username='admin'")
+        if result.first() is None:
+            admin = User(
+                username='admin',
+                first_name='Admin',
+                last_name='User',
+                email='admin@example.com',
+                password_hash=hashlib.sha256('Admin1234'.encode()).hexdigest(),
+                role='admin',
+                is_active=True
+            )
+            session.add(admin)
+            await session.commit()
+
+asyncio.run(seed_admin())
+END
 
 cd ..
 
@@ -123,14 +150,14 @@ cd ..
 # 7. FRONTEND BUILD
 # ==============================
 echo "[INFO] Building Vue frontend..."
-
 cd frontend
 npm install
 npm run build
-
 cd ..
 
 # ==============================
 # 8. DONE
 # ==============================
 echo "[SUCCESS] Production build completed successfully!"
+echo "[INFO] To start FastAPI: "
+echo "   gunicorn -k uvicorn.workers.UvicornWorker app.main:app --bind 0.0.0.0:\$PORT --workers 2 --chdir backend"
