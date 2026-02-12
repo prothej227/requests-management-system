@@ -58,15 +58,14 @@ fi
 # ==============================
 # SQLite in /tmp (writable on Render)
 DB_NAME=${DB_NAME:-database.db}
-DB_PATH="/tmp/$DB_NAME"
-export DATABASE_URL="sqlite+aiosqlite:///$DB_PATH"
-echo "[INFO] Using SQLite database: $DB_PATH"
+export DATABASE_URL="sqlite+aiosqlite:///./$DB_NAME"
+echo "[INFO] Using SQLite database: ./$DB_NAME"
 
 # Update alembic.ini
 if [ "$PLATFORM" = "Mac" ]; then
-    sed -i '' "s|^sqlalchemy.url.*|sqlalchemy.url = sqlite:///$DB_PATH|" alembic.ini
+    sed -i '' "s|^sqlalchemy.url.*|sqlalchemy.url = sqlite:///./$DB_NAME|" alembic.ini
 else
-    sed -i "s|^sqlalchemy.url.*|sqlalchemy.url = sqlite:///$DB_PATH|" alembic.ini
+    sed -i "s|^sqlalchemy.url.*|sqlalchemy.url = sqlite:///./$DB_NAME|" alembic.ini
 fi
 
 # ==============================
