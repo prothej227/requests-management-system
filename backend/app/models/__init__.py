@@ -8,4 +8,4 @@ from .stickers import StickerCanvas, Sticker
 import app.models.events  # noqa: F401
 
 
-__all__ = ["Request", "Area", "Customer", "StickerCanvas", "Sticker"]
+__all__ = ["Request", "Area", "Customer", "StickerCanvas", "Sticker", "User"]

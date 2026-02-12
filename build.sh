@@ -31,7 +31,6 @@ fi
 
 echo "[INFO] Using Python command: $PYTHON_CMD"
 
-# Ensure Python 3
 PY_VERSION=$($PYTHON_CMD -c "import sys; print(sys.version_info.major)")
 if [ "$PY_VERSION" -lt 3 ]; then
     echo "[ERROR] Python 3 is required."
@@ -48,7 +47,6 @@ if [ ! -d ".venv" ]; then
     $PYTHON_CMD -m venv .venv
 fi
 
-# Activate venv based on OS
 if [ "$PLATFORM" = "Windows" ]; then
     source .venv/Scripts/activate
 else
@@ -80,38 +78,56 @@ fi
 
 echo "[INFO] Using DB file: $DB_NAME"
 
-# Windows sed compatibility
 if [ "$PLATFORM" = "Mac" ]; then
     sed -i '' "s|^sqlalchemy.url.*|sqlalchemy.url = sqlite:///$DB_NAME|" alembic.ini
 else
     sed -i.bak "s|^sqlalchemy.url.*|sqlalchemy.url = sqlite:///$DB_NAME|" alembic.ini
 fi
 
-# Patch env.py
+# ==============================
+# 5. PATCH env.py
+# ==============================
 ENV_FILE="migrations/env.py"
 
+# Insert Base import if missing
 if ! grep -q "from app.core.database import Base" "$ENV_FILE"; then
     sed -i.bak "/fileConfig/a\\
 from app.core.database import Base" "$ENV_FILE"
 fi
 
+# Insert models import right after Base
+if ! grep -q "from app.models import \*" "$ENV_FILE"; then
+    sed -i.bak "/from app.core.database import Base/a\\
+from app.models import *" "$ENV_FILE"
+fi
+
+# Set target_metadata
 sed -i.bak "s|target_metadata = None|target_metadata = Base.metadata|" "$ENV_FILE"
 
 echo "[INFO] Alembic configured successfully."
 
+# ==============================
+# 6. RUN MIGRATIONS
+# ==============================
+echo "[INFO] Creating initial migration..."
+alembic revision --autogenerate -m "initial setup"
+
+echo "[INFO] Applying migrations..."
+alembic upgrade head
+
 cd ..
 
 # ==============================
-# 5. FRONTEND BUILD
+# 7. FRONTEND BUILD
 # ==============================
 echo "[INFO] Building Vue frontend..."
 
 cd frontend
 npm install
-npm run build   # [INFO] Already outputs to ../backend/app/static
+npm run build
 cd ..
 
 # ==============================
-# 6. DONE
+# 8. DONE
 # ==============================
 echo "[SUCCESS] Production build completed successfully!"
