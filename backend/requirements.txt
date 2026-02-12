@@ -13,3 +13,4 @@ bcrypt==5.0.0
 pydantic[email]
 pytz
 tzdata
+uvicorn==0.34.2
