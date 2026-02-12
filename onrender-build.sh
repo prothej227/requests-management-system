@@ -108,6 +108,9 @@ echo "[INFO] Alembic configured successfully."
 # ==============================
 # 5. RUN MIGRATIONS
 # ==============================
+echo "[INFO] Creating initial migration..."
+alembic revision --autogenerate -m "initial setup"
+
 echo "[INFO] Applying Alembic migrations..."
 alembic upgrade head
 
