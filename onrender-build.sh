@@ -58,6 +58,14 @@ echo "[INFO] Installing backend dependencies..."
 pip install -r requirements.txt
 
 # ==============================
+# Pre_3. INIT ALEMBIC IF MISSING
+# ==============================
+if [ ! -d "migrations" ]; then
+    echo "[INFO] Initializing Alembic migrations..."
+    alembic init migrations
+fi
+
+# ==============================
 # 3. SET DATABASE PATH
 # ==============================
 # SQLite in /tmp (writable on Render)
