@@ -43,75 +43,7 @@ echo "[INFO] Upgrading pip..."
 $PYTHON_CMD -m pip install --upgrade pip
 
 echo "[INFO] Installing backend dependencies..."
-pip install -r requirements.txt
-
-# ==============================
-# Pre_3. INIT ALEMBIC IF MISSING
-# ==============================
-if [ ! -d "migrations" ]; then
-    echo "[INFO] Initializing Alembic migrations..."
-    alembic init migrations
-fi
-
-# ==============================
-# 3. SET DATABASE PATH
-# ==============================
-# SQLite in /tmp (writable on Render)
-DB_NAME=${DB_NAME:-database.db}
-export DATABASE_URL="sqlite+aiosqlite:///./$DB_NAME"
-echo "[INFO] Using SQLite database: ./$DB_NAME"
-
-# Update alembic.ini
-if [ "$PLATFORM" = "Mac" ]; then
-    sed -i '' "s|^sqlalchemy.url.*|sqlalchemy.url = sqlite:///./$DB_NAME|" alembic.ini
-else
-    sed -i "s|^sqlalchemy.url.*|sqlalchemy.url = sqlite:///./$DB_NAME|" alembic.ini
-fi
-
-# ==============================
-# 4. PATCH env.py
-# ==============================
-ENV_FILE="migrations/env.py"
-
-# Insert Base import if missing
-if ! grep -q "from app.core.database import Base" "$ENV_FILE"; then
-    if [ "$PLATFORM" = "Mac" ]; then
-        sed -i '' "/fileConfig/a\\
-from app.core.database import Base" "$ENV_FILE"
-    else
-        sed -i "/fileConfig/a\\
-from app.core.database import Base" "$ENV_FILE"
-    fi
-fi
-
-# Insert models import right after Base
-if ! grep -q "from app.models import \*" "$ENV_FILE"; then
-    if [ "$PLATFORM" = "Mac" ]; then
-        sed -i '' "/from app.core.database import Base/a\\
-from app.models import *" "$ENV_FILE"
-    else
-        sed -i "/from app.core.database import Base/a\\
-from app.models import *" "$ENV_FILE"
-    fi
-fi
-
-# Set target_metadata
-if [ "$PLATFORM" = "Mac" ]; then
-    sed -i '' "s|target_metadata = None|target_metadata = Base.metadata|" "$ENV_FILE"
-else
-    sed -i "s|target_metadata = None|target_metadata = Base.metadata|" "$ENV_FILE"
-fi
-
-echo "[INFO] Alembic configured successfully."
-
-# ==============================
-# 5. RUN MIGRATIONS
-# ==============================
-echo "[INFO] Creating initial migration..."
-alembic revision --autogenerate -m "initial setup"
-
-echo "[INFO] Applying Alembic migrations..."
-alembic upgrade head
+pip install -r requirements.tx
 
 cd ..
 
