@@ -42,18 +42,6 @@ fi
 # ==============================
 cd backend
 
-if [ ! -d ".venv" ]; then
-    echo "[INFO] Creating virtual environment..."
-    $PYTHON_CMD -m venv .venv
-fi
-
-# Activate venv
-if [ "$PLATFORM" = "Windows" ]; then
-    source .venv/Scripts/activate
-else
-    source .venv/bin/activate
-fi
-
 echo "[INFO] Upgrading pip..."
 $PYTHON_CMD -m pip install --upgrade pip
 
