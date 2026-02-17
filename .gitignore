@@ -121,3 +121,4 @@ backend/database.db
 # VS Code settings
 .vscode/
 
+*.db

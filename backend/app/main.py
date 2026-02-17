@@ -34,7 +34,9 @@ app.add_middleware(
 )
 app.include_router(api_router, prefix=settings.prefix)
 
-app.mount("/assets", StaticFiles(directory=STATIC_DIR / "assets"), name="assets")
+
+if settings.environment == "prod":
+    app.mount("/assets", StaticFiles(directory=STATIC_DIR / "assets"), name="assets")
 
 
 @app.get("/{full_path:path}")

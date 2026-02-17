@@ -30,10 +30,10 @@ export default {
 
     <!-- AUTHENTICATED APP -->
     <TopHeader />
-    <div class="container-fluid min-vh-100">
-      <div class="row min-vh-100">
+    <div class="container-fluid">
+      <div class="row">
         <Sidebar />
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4"">
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" :style="hasNoAuth ? '' : 'margin-bottom:1em'">
           <router-view />
         </main>
       </div>
@@ -42,8 +42,8 @@ export default {
 </template>
 
 <style>
-#app-content-area {
-  margin-top: 1em;
+.app-content-area {
+  margin-bottom: 1em;
 }
 
 /* Additional */
@@ -52,12 +52,12 @@ export default {
   text-anchor: middle;
   -webkit-user-select: none;
   -moz-user-select: none;
-  user-select: none;
+  user-select: none
 }
 
 @media (min-width: 768px) {
   .bd-placeholder-img-lg {
-    font-size: 3.5rem;
+    font-size: 3.5rem
   }
 }
 
@@ -65,27 +65,27 @@ export default {
   width: 100%;
   height: 3rem;
   background-color: #0000001a;
-  border: solid rgba(0, 0, 0, 0.15);
+  border: solid rgba(0, 0, 0, .15);
   border-width: 1px 0;
-  box-shadow: inset 0 0.5em 1.5em #0000001a, inset 0 0.125em 0.5em #00000026;
+  box-shadow: inset 0 .5em 1.5em #0000001a, inset 0 .125em .5em #00000026
 }
 
 .b-example-vr {
   flex-shrink: 0;
   width: 1.5rem;
-  height: 100vh;
+  height: 100vh
 }
 
 .bi {
-  vertical-align: -0.125em;
-  fill: currentColor;
+  vertical-align: -.125em;
+  fill: currentColor
 }
 
 .nav-scroller {
   position: relative;
   z-index: 2;
   height: 2.75rem;
-  overflow-y: hidden;
+  overflow-y: hidden
 }
 
 .nav-scroller .nav {
@@ -96,7 +96,7 @@ export default {
   overflow-x: auto;
   text-align: center;
   white-space: nowrap;
-  -webkit-overflow-scrolling: touch;
+  -webkit-overflow-scrolling: touch
 }
 
 .btn-bd-primary {
@@ -112,20 +112,20 @@ export default {
   --bs-btn-focus-shadow-rgb: var(--bd-violet-rgb);
   --bs-btn-active-color: var(--bs-btn-hover-color);
   --bs-btn-active-bg: #5a23c8;
-  --bs-btn-active-border-color: #5a23c8;
+  --bs-btn-active-border-color: #5a23c8
 }
 
 .bd-mode-toggle {
-  z-index: 1500;
+  z-index: 1500
 }
 
 .bd-mode-toggle .bi {
   width: 1em;
-  height: 1em;
+  height: 1em
 }
 
 .bd-mode-toggle .dropdown-menu .active .bi {
-  display: block !important;
+  display: block !important
 }
 
 div {

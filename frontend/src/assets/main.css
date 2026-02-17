@@ -11,12 +11,6 @@
  */
 
 @media (min-width: 768px) {
-  .sidebar {
-    position: fixed;
-    top: 48px;
-    bottom: 0;
-    overflow-y: auto;
-  }
   .sidebar .offcanvas-lg {
     position: -webkit-sticky;
     position: sticky;
